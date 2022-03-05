@@ -2,9 +2,8 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-    compact::vector<unsigned, 1> b(3);
+    unsigned n = atoi(argv[1]);
+    compact::vector<unsigned, 1> b(n);
     rank_support r(&b);
-    std::cout << "hello\n";
-    std::cout << b.size() << std::endl;
-    std::cout << r.rank1() << std::endl;
+    r.preExperiment();
 }
