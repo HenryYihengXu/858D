@@ -6,8 +6,9 @@ int main(int argc, char* argv[]) {
     std::cout << "hello\n";
     unsigned bits = atoi(argv[1]);
     unsigned len = atoi(argv[2]);
-    compact::vector<int> ary1(bits, len);
+    compact::vector<unsigned> ary1(bits, len);
     
+    std::cout << ary1.size() << std::endl;
     ary1.at(0) = 3;
     std::cout << ary1.at(0) << std::endl;
     ary1.at(1) = 4;
