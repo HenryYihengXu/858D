@@ -4,6 +4,10 @@
 #include <iomanip>
 #include <time.h>
 
+using std::string;
+using std::cout;
+using std::endl;
+
 void test_rank1(unsigned num_test=10);
 int generate_random_01(float oneFreq=0.5);
 compact::vector<unsigned, 1> generate_random_bit_vector(unsigned size, float oneFreq=0.5);
@@ -26,24 +30,24 @@ void test_rank1(unsigned num_test) {
         unsigned idx = rand() % n;
         unsigned rank1 = r.rank1(idx);
         unsigned rank1ByCount = r.countRank1(idx);
-        std::cout << "Test " << i << ": size = " << n << ", one frequency = " << oneFreq << 
-            ", index = " << idx << ", rank 1 = " << rank1 << ", rank 1 by count = " << rank1ByCount << std::endl;
-        // std::cout << r.to_string();
+        cout << "Test " << i << ": size = " << n << ", one frequency = " << oneFreq << 
+            ", index = " << idx << ", rank 1 = " << rank1 << ", rank 1 by count = " << rank1ByCount << endl;
+        // cout << r.to_string();
         if (rank1 == rank1ByCount) {
-            std::cout << "passed\n";
+            cout << "passed\n";
             passed++;
         } else {
-            std::cout << "failed\n";
+            cout << "failed\n";
         }
-        std::cout << "\n";
+        cout << "\n";
     }
 
     if (passed == num_test) {
-        std::cout << "ALL TESTS PASSED\n";
+        cout << "ALL TESTS PASSED\n";
     } else {
-        std::cout << "SOME TESTS FAILED\n";
+        cout << "SOME TESTS FAILED\n";
     }
-    std::cout << "\n";
+    cout << "\n";
 }
 
 int generate_random_01(float oneFreq) {

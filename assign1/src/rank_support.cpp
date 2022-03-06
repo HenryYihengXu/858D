@@ -2,7 +2,11 @@
 #include <iostream>
 #include <math.h>
 #include <sstream>
-#include <iomanip> 
+#include <iomanip>
+
+using std::string;
+using std::cout;
+using std::endl;
 
 rank_support::rank_support(compact::vector<unsigned, 1> *b) 
 { 
@@ -36,32 +40,57 @@ rank_support::rank_support(compact::vector<unsigned, 1> *b)
 }
 
 unsigned rank_support::rank1(unsigned idx) {
+    if (idx >= n) {
+        cout << "ERROR: idx out of bound!\n";
+        exit(1);
+    }
     unsigned RsIdx = idx / RsCovers;
     unsigned RbIdx = idx / RbCovers;
     return Rs->at(RsIdx) + Rb->at(RbIdx) + popcount(idx);
 }
 
+unsigned overheads() {
+    unsigned size = 0;
+    return size;
+}
+
+void save(string fname) {
+
+}
+
+void load(string fname) {
+
+}
+
+
 unsigned rank_support::popcount(unsigned idx) {
+    if (idx >= n) {
+        cout << "ERROR: idx out of bound!\n";
+        exit(1);
+    }
     uint16_t *wordDataB = (uint16_t *)b->get();
     unsigned blockStartIdx = idx / RbCovers * RbCovers;
     unsigned wordIdx = blockStartIdx / 16;
 
-    if (blockStartIdx % 16 + idx % RbCovers <= 16) {
+    /* if block: the region sits in a single word */
+    if (blockStartIdx % 16 + idx % RbCovers < 16) {
         uint16_t wordForBlock = wordDataB[wordIdx];
-        // std::cout << "word for block: " << std::bitset<16>(wordForBlock) << std::endl;
+        // cout << "word for block: " << std::bitset<16>(wordForBlock) << endl;
         wordForBlock = wordForBlock >> (blockStartIdx % 16);
-        wordForBlock = wordForBlock << (16 - idx % RbCovers);
+        wordForBlock = wordForBlock << (16 - 1 - idx % RbCovers);
         return std::popcount(wordForBlock);
+    /* else block: the region sits across two words */
     } else {
         uint16_t word1ForBlock = wordDataB[wordIdx];
         uint16_t word2ForBlock = wordDataB[wordIdx + 1];
         word1ForBlock = word1ForBlock >> (blockStartIdx % 16);
-        word2ForBlock = word2ForBlock << (32 - blockStartIdx % 16 - idx % RbCovers);
+        word2ForBlock = word2ForBlock << (32 - 1 - blockStartIdx % 16 - idx % RbCovers);
         return std::popcount(word1ForBlock) + std::popcount(word2ForBlock);
     }
 }
 
-std::string rank_support::to_string() {
+/* Primarily for test purposes */
+string rank_support::to_string() {
     std::stringstream result;
 
     result << "|";
@@ -120,9 +149,10 @@ std::string rank_support::to_string() {
     return result.str();
 }
 
+/* Only for test purposes */
 unsigned rank_support::countRank1(unsigned idx) {
     unsigned count = 0;
-    for (unsigned i = 0; i < idx; i++){
+    for (unsigned i = 0; i <= idx; i++){
         count += b->at(i);
     }
     return count;
@@ -134,26 +164,26 @@ void rank_support::preExperiment() {
     Rs->at(1) = -1;
     Rs->at(2) = -1;
     Rb->at(0) = 11;
-    std::cout << "size of b: " << b->size() << std::endl;
-    std::cout << "size of Rs: " << Rs->size() << std::endl;
-    std::cout << "size of Rb: " << Rb->size() << std::endl;
-    std::cout << std::endl;
+    cout << "size of b: " << b->size() << endl;
+    cout << "size of Rs: " << Rs->size() << endl;
+    cout << "size of Rb: " << Rb->size() << endl;
+    cout << endl;
 
-    std::cout << "bits of b: " << b->bits() << std::endl;
-    std::cout << "bits of Rs: " << Rs->bits() << std::endl;
-    std::cout << "bits of Rb: " << Rb->bits() << std::endl;
-    std::cout << std::endl;
+    cout << "bits of b: " << b->bits() << endl;
+    cout << "bits of Rs: " << Rs->bits() << endl;
+    cout << "bits of Rb: " << Rb->bits() << endl;
+    cout << endl;
 
-    std::cout << "b[0]: " << b->at(0) << std::endl;
-    std::cout << "Rs[0]: " << Rs->at(0) << std::endl;
-    std::cout << "Rb[0]: " << Rb->at(0) << std::endl;
-    std::cout << std::endl;
+    cout << "b[0]: " << b->at(0) << endl;
+    cout << "Rs[0]: " << Rs->at(0) << endl;
+    cout << "Rb[0]: " << Rb->at(0) << endl;
+    cout << endl;
 
     bool *boolDataRs = (bool *)Rs->get() + 2;
     uint16_t *wordDataRs = (uint16_t *)boolDataRs;
     uint16_t *wordDataRb = (uint16_t *)Rb->get();
-    std::cout << "popcount of word Rs[0] " << std::bitset<16>(wordDataRs[0]) << ": " << std::popcount(wordDataRs[0]) << std::endl;
-    std::cout << "popcount of word Rb[0] " << std::bitset<16>(wordDataRb[0]) << ": " << std::popcount(wordDataRb[0]) << std::endl;
-    std::cout << std::endl;
+    cout << "popcount of word Rs[0] " << std::bitset<16>(wordDataRs[0]) << ": " << std::popcount(wordDataRs[0]) << endl;
+    cout << "popcount of word Rb[0] " << std::bitset<16>(wordDataRb[0]) << ": " << std::popcount(wordDataRb[0]) << endl;
+    cout << endl;
 
 }
