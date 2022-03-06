@@ -39,26 +39,26 @@ rank_support::rank_support(compact::vector<unsigned, 1> *b)
     }
 }
 
-unsigned rank_support::rank1(unsigned idx) {
-    if (idx >= n) {
-        cout << "ERROR: idx out of bound!\n";
+uint64_t rank_support::rank1(uint64_t i) {
+    if (i >= n) {
+        cout << "ERROR: index out of bound!\n";
         exit(1);
     }
-    unsigned RsIdx = idx / RsCovers;
-    unsigned RbIdx = idx / RbCovers;
-    return Rs->at(RsIdx) + Rb->at(RbIdx) + popcount(idx);
+    unsigned RsIdx = i / RsCovers;
+    unsigned RbIdx = i / RbCovers;
+    return Rs->at(RsIdx) + Rb->at(RbIdx) + popcount(i);
 }
 
-unsigned overheads() {
-    unsigned size = 0;
+uint64_t rank_support::overhead() {
+    uint64_t size = 0;
     return size;
 }
 
-void save(string fname) {
+void rank_support::save(string& fname) {
 
 }
 
-void load(string fname) {
+void rank_support::load(string& fname) {
 
 }
 
@@ -150,7 +150,7 @@ string rank_support::to_string() {
 }
 
 /* Only for test purposes */
-unsigned rank_support::countRank1(unsigned idx) {
+uint64_t rank_support::rank1ByCount(uint64_t idx) {
     unsigned count = 0;
     for (unsigned i = 0; i <= idx; i++){
         count += b->at(i);

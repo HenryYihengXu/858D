@@ -1,4 +1,5 @@
 #include "../include/compact_vector.hpp"
+using std::string;
 
 class rank_support {
     unsigned n = 0;
@@ -14,9 +15,13 @@ class rank_support {
 
 public:
     rank_support(compact::vector<unsigned, 1> *b);
-    unsigned countRank1(unsigned idx);
-    std::string to_string();
+    uint64_t rank1(uint64_t i);
+    uint64_t overhead();
+    void save(string& fname);
+    void load(string& fname);
+    
     unsigned popcount(unsigned idx);
-    unsigned rank1(unsigned idx);
+    string to_string();
+    uint64_t rank1ByCount(uint64_t idx);
     void preExperiment();
 };

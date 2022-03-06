@@ -29,7 +29,7 @@ void test_rank1(unsigned num_test) {
 
         unsigned idx = rand() % n;
         unsigned rank1 = r.rank1(idx);
-        unsigned rank1ByCount = r.countRank1(idx);
+        unsigned rank1ByCount = r.rank1ByCount(idx);
         cout << "Test " << i << ": size = " << n << ", one frequency = " << oneFreq << 
             ", index = " << idx << ", rank 1 = " << rank1 << ", rank 1 by count = " << rank1ByCount << endl;
         // cout << r.to_string();
