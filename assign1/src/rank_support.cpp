@@ -46,22 +46,17 @@ unsigned rank_support::popcount(unsigned idx) {
     unsigned blockStartIdx = idx / RbCovers * RbCovers;
     unsigned wordIdx = blockStartIdx / 16;
 
-    if (blockStartIdx % 16 + RbCovers <= 16) {
+    if (blockStartIdx % 16 + idx % RbCovers <= 16) {
         uint16_t wordForBlock = wordDataB[wordIdx];
-        std::cout << "word for block: " << std::bitset<16>(wordForBlock) << std::endl;
+        // std::cout << "word for block: " << std::bitset<16>(wordForBlock) << std::endl;
         wordForBlock = wordForBlock >> (blockStartIdx % 16);
-        wordForBlock = wordForBlock << (16 - RbCovers);
-        std::cout << "word for block: " << std::bitset<16>(wordForBlock) << std::endl;
+        wordForBlock = wordForBlock << (16 - idx % RbCovers);
         return std::popcount(wordForBlock);
     } else {
         uint16_t word1ForBlock = wordDataB[wordIdx];
         uint16_t word2ForBlock = wordDataB[wordIdx + 1];
-        std::cout << "word 1 for block: " << std::bitset<16>(word1ForBlock) << std::endl;
-        std::cout << "word 2 for block: " << std::bitset<16>(word2ForBlock) << std::endl;
         word1ForBlock = word1ForBlock >> (blockStartIdx % 16);
-        word2ForBlock = word2ForBlock << (32 - blockStartIdx % 16 - RbCovers);
-        std::cout << "word 1 for block: " << std::bitset<16>(word1ForBlock) << std::endl;
-        std::cout << "word 2 for block: " << std::bitset<16>(word2ForBlock) << std::endl;
+        word2ForBlock = word2ForBlock << (32 - blockStartIdx % 16 - idx % RbCovers);
         return std::popcount(word1ForBlock) + std::popcount(word2ForBlock);
     }
 }
