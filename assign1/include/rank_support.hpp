@@ -7,6 +7,7 @@ class rank_support {
 
 public:
     rank_support(compact::vector<unsigned, 1> *b);
+    std::string to_string();
     int rank1(unsigned idx);
     void preExperiment();
 };
