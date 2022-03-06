@@ -6,14 +6,13 @@
 
 rank_support::rank_support(compact::vector<unsigned, 1> *b) 
 { 
-    unsigned n = b->size();
-    unsigned bCovers = n;
-    unsigned RbCovers = ceil(log2(bCovers));
-    unsigned RsCovers = RbCovers * RbCovers;
-    unsigned RbSize = ceil((float)n / (float)RbCovers);
-    unsigned RsSize = ceil((float)n / (float)RsCovers);
-    unsigned RbBits = ceil(log2(RsCovers));
-    unsigned RsBits = ceil(log2(bCovers));
+    n = b->size();
+    RbCovers = ceil(log2(n));
+    RsCovers = RbCovers * RbCovers;
+    RbSize = ceil((float)n / (float)RbCovers);
+    RsSize = ceil((float)n / (float)RsCovers);
+    RbBits = ceil(log2(RsCovers));
+    RsBits = ceil(log2(n));
 
     this->b = b;
     this->Rs = new compact::vector<unsigned>(RsBits, RsSize);
@@ -24,11 +23,10 @@ rank_support::rank_support(compact::vector<unsigned, 1> *b)
     for (unsigned i = 0; i < n; i++) {
         if (i % RsCovers == 0) {
             Rs->at(i / RsCovers) = RsCount;
-            RsCount = 0;
+            RbCount = 0;
         }
         if (i % RbCovers == 0) {
             Rb->at(i / RbCovers) = RbCount;
-            RbCount = 0;
         }
         if (b->at(i) == 1) {
             RsCount++;
@@ -37,24 +35,42 @@ rank_support::rank_support(compact::vector<unsigned, 1> *b)
     }
 }
 
-int rank_support::rank1(unsigned idx) {
-    return idx;
+unsigned rank_support::rank1(unsigned idx) {
+    unsigned RsIdx = idx / RsCovers;
+    unsigned RbIdx = idx / RbCovers;
+    return Rs->at(RsIdx) + Rb->at(RbIdx) + popcount(idx);
+}
+
+unsigned rank_support::popcount(unsigned idx) {
+    uint16_t *wordDataB = (uint16_t *)b->get();
+    unsigned blockStartIdx = idx / RbCovers * RbCovers;
+    unsigned wordIdx = blockStartIdx / 16;
+
+    if (blockStartIdx % 16 + RbCovers <= 16) {
+        uint16_t wordForBlock = wordDataB[wordIdx];
+        std::cout << "word for block: " << std::bitset<16>(wordForBlock) << std::endl;
+        wordForBlock = wordForBlock >> (blockStartIdx % 16);
+        wordForBlock = wordForBlock << (16 - RbCovers);
+        std::cout << "word for block: " << std::bitset<16>(wordForBlock) << std::endl;
+        return std::popcount(wordForBlock);
+    } else {
+        uint16_t word1ForBlock = wordDataB[wordIdx];
+        uint16_t word2ForBlock = wordDataB[wordIdx + 1];
+        std::cout << "word 1 for block: " << std::bitset<16>(word1ForBlock) << std::endl;
+        std::cout << "word 2 for block: " << std::bitset<16>(word2ForBlock) << std::endl;
+        word1ForBlock = word1ForBlock >> (blockStartIdx % 16);
+        word2ForBlock = word2ForBlock << (32 - blockStartIdx % 16 - RbCovers);
+        std::cout << "word 1 for block: " << std::bitset<16>(word1ForBlock) << std::endl;
+        std::cout << "word 2 for block: " << std::bitset<16>(word2ForBlock) << std::endl;
+        return std::popcount(word1ForBlock) + std::popcount(word2ForBlock);
+    }
 }
 
 std::string rank_support::to_string() {
     std::stringstream result;
 
-    unsigned n = b->size();
-    unsigned bCovers = n;
-    unsigned RbCovers = ceil(log2(bCovers));
-    unsigned RsCovers = RbCovers * RbCovers;
-    unsigned RbSize = Rb->size();
-    unsigned RsSize = Rs->size();
-    unsigned RbBits = Rb->bits();
-    unsigned RsBits = Rs->bits();
-
     result << "|";
-    for (unsigned i = 0; i < 2 * n; i++) {
+    for (unsigned i = 0; i < std::max(RbCovers * RbSize, RsCovers * RsSize); i++) {
         result << std::setfill(' ') << std::setw(3) << i << "|";
     }
     result << "\n";
@@ -107,6 +123,14 @@ std::string rank_support::to_string() {
     result << "\n";
     
     return result.str();
+}
+
+unsigned rank_support::countRank1(unsigned idx) {
+    unsigned count = 0;
+    for (unsigned i = 0; i < idx; i++){
+        count += b->at(i);
+    }
+    return count;
 }
 
 void rank_support::preExperiment() {
