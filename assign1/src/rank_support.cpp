@@ -37,6 +37,10 @@ rank_support::rank_support(compact::vector<unsigned, 1> *b)
     }
 }
 
+int rank_support::rank1(unsigned idx) {
+    return idx;
+}
+
 std::string rank_support::to_string() {
     std::stringstream result;
 
@@ -103,10 +107,6 @@ std::string rank_support::to_string() {
     result << "\n";
     
     return result.str();
-}
-
-int rank_support::rank1(unsigned idx) {
-    return idx;
 }
 
 void rank_support::preExperiment() {

@@ -9,17 +9,10 @@ int generate_random_01(float oneFreq=0.5);
 compact::vector<unsigned, 1> generate_random_bit_vector(unsigned size, float oneFreq=0.5);
 
 int main(int argc, char* argv[]) {
-    srand(time(NULL));
-
     unsigned n = atoi(argv[1]);
-    compact::vector<unsigned, 1> b(n);
-    rank_support r(&b);
-    // r.preExperiment();
-    test_rank_support_structure(32, 0.5);
-}
-
-void test_rank_support_structure(unsigned size, float oneFreq) {
-    compact::vector<unsigned, 1> b = generate_random_bit_vector(size, oneFreq);
+    float oneFreq = atof(argv[2]);
+    srand(time(NULL));
+    compact::vector<unsigned, 1> b = generate_random_bit_vector(n, oneFreq);
     rank_support r(&b);
     std::cout << r.to_string();
 }
