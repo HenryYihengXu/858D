@@ -8,9 +8,13 @@ using std::string;
 using std::cout;
 using std::endl;
 
-rank_support::rank_support(compact::vector<unsigned, 1> *b) 
+rank_support::rank_support(compact::vector<uint64_t, 1> *b) 
 { 
     n = b->size();
+    if (n == 0) {
+        cout << "ERROR: empty bit vector" << endl;
+        exit(1);
+    }
     RbCovers = ceil(log2(n));
     RsCovers = RbCovers * RbCovers;
     RbSize = ceil((float)n / (float)RbCovers);
@@ -19,12 +23,12 @@ rank_support::rank_support(compact::vector<unsigned, 1> *b)
     RsBits = ceil(log2(n));
 
     this->b = b;
-    this->Rs = new compact::vector<unsigned>(RsBits, RsSize);
-    this->Rb = new compact::vector<unsigned>(RbBits, RbSize);
+    this->Rs = new compact::vector<uint64_t>(RsBits, RsSize);
+    this->Rb = new compact::vector<uint64_t>(RbBits, RbSize);
 
-    unsigned RsCount = 0;
-    unsigned RbCount = 0;
-    for (unsigned i = 0; i < n; i++) {
+    uint64_t RsCount = 0;
+    uint64_t RbCount = 0;
+    for (uint64_t i = 0; i < n; i++) {
         if (i % RsCovers == 0) {
             Rs->at(i / RsCovers) = RsCount;
             RbCount = 0;
@@ -44,8 +48,8 @@ uint64_t rank_support::rank1(uint64_t i) {
         cout << "ERROR: index out of bound!\n";
         exit(1);
     }
-    unsigned RsIdx = i / RsCovers;
-    unsigned RbIdx = i / RbCovers;
+    uint64_t RsIdx = i / RsCovers;
+    uint64_t RbIdx = i / RbCovers;
     return Rs->at(RsIdx) + Rb->at(RbIdx) + popcount(i);
 }
 
@@ -62,15 +66,14 @@ void rank_support::load(string& fname) {
 
 }
 
-
-unsigned rank_support::popcount(unsigned idx) {
+uint64_t rank_support::popcount(uint64_t idx) {
     if (idx >= n) {
         cout << "ERROR: idx out of bound!\n";
         exit(1);
     }
     uint16_t *wordDataB = (uint16_t *)b->get();
-    unsigned blockStartIdx = idx / RbCovers * RbCovers;
-    unsigned wordIdx = blockStartIdx / 16;
+    uint64_t blockStartIdx = idx / RbCovers * RbCovers;
+    uint64_t wordIdx = blockStartIdx / 16;
 
     /* if block: the region sits in a single word */
     if (blockStartIdx % 16 + idx % RbCovers < 16) {
@@ -94,14 +97,14 @@ string rank_support::to_string() {
     std::stringstream result;
 
     result << "|";
-    for (unsigned i = 0; i < std::max(RbCovers * RbSize, RsCovers * RsSize); i++) {
+    for (uint64_t i = 0; i < std::max(RbCovers * RbSize, RsCovers * RsSize); i++) {
         result << std::setfill(' ') << std::setw(3) << i << "|";
     }
     result << "\n";
 
     result << "B (bits = " << 1 << ", size = " << n << "): \n";
     result << "| ";
-    for (unsigned i = 0; i < n; i++) {
+    for (uint64_t i = 0; i < n; i++) {
         result << b->at(i) << " | ";
     }
     result << "\n";
@@ -109,12 +112,12 @@ string rank_support::to_string() {
     result << "Rs covers " << RsCovers << " bits in B, each element of Rs contains " << RsBits << " bits , Rs contains " << RsSize << " elements\n";
     result << "Rs: \n";
     result << "|";
-    for (unsigned i = 0; i < RsSize; i++) {
-        for (unsigned j = 0; j < (RsCovers - 1) / 2; j++) {
+    for (uint64_t i = 0; i < RsSize; i++) {
+        for (uint64_t j = 0; j < (RsCovers - 1) / 2; j++) {
             result << "    ";
         }
         result << " " << std::setfill(' ') << std::setw(3) << Rs->at(i);
-        for (unsigned j = 0; j < (RsCovers - 1) / 2 + ((RsCovers - 1) % 2); j++) {
+        for (uint64_t j = 0; j < (RsCovers - 1) / 2 + ((RsCovers - 1) % 2); j++) {
             if (j == (RsCovers - 1) / 2 + ((RsCovers - 1) % 2) - 1) {
                 result << "   ";
             } else {
@@ -128,12 +131,12 @@ string rank_support::to_string() {
     result << "Rb covers " << RbCovers << " bits in B, each element of Rb contains " << RbBits << " bits , Rb contains " << RbSize << " elements\n";
     result << "Rb: \n";
     result << "|";
-    for (unsigned i = 0; i < RbSize; i++) {
-        for (unsigned j = 0; j < (RbCovers - 1) / 2; j++) {
+    for (uint64_t i = 0; i < RbSize; i++) {
+        for (uint64_t j = 0; j < (RbCovers - 1) / 2; j++) {
             result << "    ";
         }
         result << " " << std::setfill(' ') << std::setw(3) << Rb->at(i);
-        for (unsigned j = 0; j < (RbCovers - 1) / 2 + ((RbCovers - 1) % 2); j++) {
+        for (uint64_t j = 0; j < (RbCovers - 1) / 2 + ((RbCovers - 1) % 2); j++) {
             if (j == (RbCovers - 1) / 2 + ((RbCovers - 1) % 2) - 1) {
                 result << "   ";
             } else {
@@ -151,11 +154,51 @@ string rank_support::to_string() {
 
 /* Only for test purposes */
 uint64_t rank_support::rank1ByCount(uint64_t idx) {
-    unsigned count = 0;
-    for (unsigned i = 0; i <= idx; i++){
+    uint64_t count = 0;
+    for (uint64_t i = 0; i <= idx; i++){
         count += b->at(i);
     }
     return count;
+}
+
+uint64_t rank_support::getN() {
+    return n;
+}
+
+uint64_t rank_support::getRsCovers() {
+    return RsCovers;
+}
+
+uint64_t rank_support::getRbCovers() {
+    return RbCovers;
+}
+
+uint64_t rank_support::getRsSize() {
+    return RsSize;
+}
+
+uint64_t rank_support::getRbSize() {
+    return RbSize;
+}
+
+uint64_t rank_support::getRsBits() {
+    return RsBits;
+}
+
+uint64_t rank_support::getRbBits() {
+    return RbBits;
+}
+
+uint64_t rank_support::bAt(uint64_t i) {
+    return b->at(i);
+}
+
+uint64_t rank_support::RsAt(uint64_t i) {
+    return Rs->at(i);
+}
+
+uint64_t rank_support::RbAt(uint64_t i) {
+    return Rb->at(i);
 }
 
 void rank_support::preExperiment() {

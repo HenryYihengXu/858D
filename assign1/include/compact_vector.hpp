@@ -1,14 +1,29 @@
+
 #ifndef __COMPACT_VECTOR_H__
 #define __COMPACT_VECTOR_H__
 
 #include <new>
 #include <stdexcept>
 #include <cstring>
+#include <system_error> // for std::error_code
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 #include "compact_iterator.hpp"
 
 namespace compact {
+
+  inline uint64_t get_bits_per_element(const std::string &fname) {
+            // load the vector by reading from file
+            std::ifstream ifile(fname, std::ios::binary);
+            uint64_t static_flag{0};
+            ifile.read(reinterpret_cast<char *>(&static_flag), sizeof(static_flag));
+            uint64_t bits_per_element;
+            ifile.read(reinterpret_cast<char *>(&bits_per_element), sizeof(bits_per_element));
+            ifile.close();
+            return bits_per_element;
+  }
 
 namespace vector_imp {
 inline int clz(unsigned int x) { return __builtin_clz(x); }
@@ -43,6 +58,7 @@ public:
   typedef std::reverse_iterator<const_iterator>  const_reverse_iterator;
 
 protected:
+
   static W* allocate_s(size_t capacity, unsigned bits, Allocator& allocator) {
     const auto nb_words = elements_to_words(capacity, bits);
     W* res = allocator.allocate(nb_words);
@@ -242,6 +258,74 @@ public:
   static constexpr unsigned used_bits() { return UB; }
   static constexpr bool thread_safe() { return TS; }
 
+              // set all values in the vector to 0
+            // *Note* : would be nice to have the constructor
+            // optionally take a value to fill in or use a default ...
+            inline void clear_mem() {
+                std::memset(this->get(), 0, this->capacity_bytes());
+            }
+
+            void serialize(std::ofstream &of)
+            {
+              uint64_t static_flag = (static_bits() == bits()) ? 1 : 0;
+              of.write(reinterpret_cast<char *>(&static_flag), sizeof(static_flag));
+              if (static_flag != 0)
+              {
+                uint64_t bits_per_element = static_bits();
+                of.write(reinterpret_cast<char *>(&bits_per_element), sizeof(bits_per_element));
+              }
+              else
+              {
+                uint64_t bits_per_element = bits();
+                of.write(reinterpret_cast<char *>(&bits_per_element), sizeof(bits_per_element));
+              }
+              uint64_t w_size = m_size;
+              of.write(reinterpret_cast<char *>(&w_size), sizeof(w_size));
+              uint64_t w_capacity = m_capacity;
+              of.write(reinterpret_cast<char *>(&w_capacity), sizeof(w_capacity));
+              of.write(reinterpret_cast<char *>(m_mem), bytes());
+              // std::cerr << "wrote " << bytes() << " bytes of data at the end\n";
+            }
+
+            void deserialize(const std::string &fname)
+            {
+              bool mmap = false;
+              uint64_t bits_per_element{0}, w_size{0}, w_capacity{0};
+              deserialize(fname, mmap, bits_per_element, w_size, w_capacity);
+            }
+
+            void deserialize( const std::string& fname, bool mmap,
+                              uint64_t& bits_per_element, uint64_t& w_size, uint64_t& w_capacity) {
+              std::error_code error;
+                // load the vector by reading from file
+                std::ifstream ifile(fname, std::ios::binary);
+                uint64_t static_flag{0};
+                ifile.read(reinterpret_cast<char*>(&static_flag),
+                           sizeof(static_flag));
+
+                ifile.read(reinterpret_cast<char*>(&bits_per_element),
+                           sizeof(bits_per_element));
+
+                // std::cerr<< "bits / element = " << bits_per_element << "\n";
+
+                ifile.read(reinterpret_cast<char*>(&w_size), sizeof(w_size));
+                m_size = w_size;
+                std::cerr << "size = " << m_size << "\n";
+
+                ifile.read(reinterpret_cast<char*>(&w_capacity),
+                           sizeof(w_capacity));
+                m_capacity = w_capacity;
+                // std::cerr<< "capacity = " << m_capacity << "\n";
+
+                m_allocator.deallocate(m_mem,
+                                       elements_to_words(m_capacity, bits()));
+                m_mem =
+                    m_allocator.allocate(elements_to_words(m_capacity, bits_per_element));
+                if (m_mem == nullptr)
+                  throw std::bad_alloc();
+                ifile.read(reinterpret_cast<char*>(m_mem),
+                           sizeof(W) * elements_to_words(m_size, bits_per_element));
+            }
 protected:
   void enlarge(size_t given = 0) {
     const size_t new_capacity = !given ? std::max(m_capacity * 2, (size_t)(bitsof<W>::val / bits() + 1)) : given;
@@ -308,6 +392,15 @@ public:
       throw std::invalid_argument("Bit length of compacted vector differ");
     static_cast<super*>(this)->operator=(std::move(rhs));
     return *this;
+  }
+
+  void set_m_bits(size_t m) { m_bits = m; }
+
+  void deserialize(const std::string& fname) {
+    uint64_t bits_per_element, w_size, w_capacity;
+    bool mmap = false;
+    static_cast<super*>(this)->deserialize(fname, mmap, bits_per_element, w_size, w_capacity);
+    set_m_bits(bits_per_element);
   }
 };
 
