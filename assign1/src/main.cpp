@@ -28,6 +28,7 @@ int generate_random_01(float oneFreq=0.5);
 void test_save_load_r();
 void test_save_load_s();
 void test_create_append();
+void test_sparse_array();
 compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq=0.5);
 
 int main(int argc, char* argv[]) {
@@ -42,7 +43,8 @@ int main(int argc, char* argv[]) {
     // test_select1();
     // test_save_load_r();
     // test_save_load_s();
-    test_create_append();
+    // test_create_append();
+    test_sparse_array();
 }
 
 void test_rank1(uint64_t num_test) {
@@ -178,6 +180,53 @@ void test_create_append() {
     cout << sa.to_string();
     sa.append("x", 61);
     cout << sa.to_string();
+}
+
+void test_sparse_array() {
+    uint64_t n = 16 + rand() % 64;
+    float oneFreq = (float)(rand()) / (float)RAND_MAX;
+    compact::vector<uint64_t, 1> b = generate_random_bit_vector(n, oneFreq);
+
+    sparse_array<string> sa{};
+    sa.create(n);
+
+    uint64_t count = 0;
+    for (uint64_t i = 0; i < b.size(); i++) {
+        if (b.at(i) == 1) {
+            count++;
+            sa.append(std::to_string(count), i);
+        }
+    }
+
+    cout << sa.to_string() << endl << endl;
+    uint64_t saSize = sa.size();
+    uint64_t elemSize = sa.num_elem();
+    cout << "sparse array size: " << saSize << endl;
+    cout << "present elements size: " << elemSize << endl;
+
+    string ss = "";
+    string &s = ss;
+
+    for (uint64_t i = 0; i <= elemSize; i++) {
+        if (sa.get_at_rank(i, s)) {
+            cout << "element " << i << ": " << s << endl;
+        } else {
+            cout << "element " << i << ": " << "index out of bound" << endl;
+        }
+    }
+
+    cout << endl << endl;
+
+    for (uint64_t i = 0; i <= saSize; i++) {
+        uint64_t num_elem = sa.num_elem_at(i);
+        if (sa.get_at_index(i, s)) {
+            cout << "element at index " << i << ": " << s << ".           num elements up to here: " << num_elem << endl;
+        } else {
+            cout << "no element at index " << i << ".           num elements up to here: " << num_elem << endl;
+        }
+    }
+
+    cout << endl << endl;
 }
 
 int generate_random_01(float oneFreq) {

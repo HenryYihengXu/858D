@@ -185,8 +185,8 @@ string rank_support::to_string() {
     }
     result << "\n";
 
-    result << "Rs covers " << RsCovers << " bits in B, each element of Rs contains " << RsBits << " bits , Rs contains " << RsSize << " elements\n";
     result << "Rs: \n";
+    result << "Each super-block (element of Rs) covers " << RsCovers << " bits in B, is " << RsBits << "-bit, and covers " << RbCovers << " blocks. Rs contains " << RsSize << " super-blocks.\n";
     result << "|";
     for (uint64_t i = 0; i < RsSize; i++) {
         for (uint64_t j = 0; j < (RsCovers - 1) / 2; j++) {
@@ -204,8 +204,8 @@ string rank_support::to_string() {
     }
     result << "\n";
 
-    result << "Rb covers " << RbCovers << " bits in B, each element of Rb contains " << RbBits << " bits , Rb contains " << RbSize << " elements\n";
     result << "Rb: \n";
+    result << "Each block (element of Rb) covers " << RbCovers << " bits in B and is " << RbBits << "-bit, Rb contains " << RbSize << " blocks\n";
     result << "|";
     for (uint64_t i = 0; i < RbSize; i++) {
         for (uint64_t j = 0; j < (RbCovers - 1) / 2; j++) {

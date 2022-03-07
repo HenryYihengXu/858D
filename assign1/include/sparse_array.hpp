@@ -20,41 +20,49 @@ using std::endl;
 
 template <class T>
 class sparse_array {
-    uint64_t size = 0;
     compact::vector<uint64_t, 1> *b = NULL;
     rank_support *r = NULL;
     std::vector<T> presentElements;
 
     uint64_t lastPos = 0;
-    bool isPos0Avail = true;
 
 public:
     void create(uint64_t size);
     void append(T elem, uint64_t pos);
+    bool get_at_rank(uint64_t r, T& elem);
+    bool get_at_index(uint64_t r, T& elem);
+    uint64_t num_elem_at(uint64_t r);
+    uint64_t size();
+    uint64_t num_elem();
+    void save(string& fname);
+    void load(string& fname);
 
     string to_string();
 };
 
 template <class T>
 void sparse_array<T>::create(uint64_t size) {
-    this->size = size;
     b = new compact::vector<uint64_t, 1>(size);
     r = new rank_support(b);
 }
 
 template <class T>
 void sparse_array<T>::append(T elem, uint64_t pos) {
-    if (pos >= size) {
+    if (b == NULL) {
+        cout << "ERROR: Array is not created. Stop appending.\n";
+        return;
+    }
+
+    if (pos >= b->size()) {
         cout << "ERROR: Index out of bound. Stop appending.\n";
         return;
     }
 
-    if (pos == 0 && !isPos0Avail || pos != 0 && pos <= lastPos) {
+    if (pos == 0 && presentElements.size() != 0 || pos != 0 && pos <= lastPos) {
         cout << "ERROR: Insertion out of order or inserting to a position already occupied. Stop appending.\n";
         return;
     }
 
-    isPos0Avail = false;
     lastPos = pos;
 
     presentElements.push_back(elem);
@@ -80,10 +88,89 @@ void sparse_array<T>::append(T elem, uint64_t pos) {
 }
 
 template <class T>
+bool sparse_array<T>::get_at_rank(uint64_t r, T& elem) {
+    if (b == NULL) {
+        cout << "ERROR: Array is not created. Returning false.\n";
+        return false;
+    }
+
+    if (r >= presentElements.size()) {
+        return false;
+    }
+
+    elem = presentElements.at(r);
+    return true;
+}
+
+template <class T>
+bool sparse_array<T>::get_at_index(uint64_t r, T& elem) {
+    if (b == NULL) {
+        cout << "ERROR: Array is not created. Returning false.\n";
+        return false;
+    }
+
+    if (r >= b->size()) {
+        cout << "ERROR: Index out of bound. Returning false.\n";
+        return false;
+    }
+
+    if (b->at(r) == 0) {
+        return false;
+    }
+
+    uint64_t elemIdx = this->r->rank1(r) - 1;
+    elem = presentElements.at(elemIdx);
+    return true;
+}
+
+template <class T>
+uint64_t sparse_array<T>::num_elem_at(uint64_t r) {
+    if (b == NULL) {
+        cout << "ERROR: Array is not created. Returning 0.\n";
+        return 0;
+    }
+
+    if (r >= b->size()) {
+        cout << "ERROR: Index out of bound. Returning total number of present elements.\n";
+        return presentElements.size();
+    }
+
+    return this->r->rank1(r);
+}
+
+template <class T>
+uint64_t sparse_array<T>::size() {
+    if (b == NULL) {
+        cout << "ERROR: Array is not created. Returning 0.\n";
+        return 0;
+    }
+    return b->size();
+}
+
+template <class T>
+uint64_t sparse_array<T>::num_elem() {
+    if (b == NULL) {
+        cout << "ERROR: Array is not created. Returning 0.\n";
+        return 0;
+    }
+    return presentElements.size();
+}
+
+template <class T>
+void sparse_array<T>::save(string& fname) {
+
+}
+
+template <class T>
+void sparse_array<T>::load(string& fname) {
+
+}
+
+template <class T>
 string sparse_array<T>::to_string() {
     std::stringstream result;
     
-    result << r->to_string() << endl;
+    result << r->to_string();
 
     result << "Present elements: \n";
     result << "[";
