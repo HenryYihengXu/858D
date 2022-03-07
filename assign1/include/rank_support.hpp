@@ -9,6 +9,7 @@ class rank_support {
     uint64_t RsSize = 0;
     uint64_t RbBits = 0;
     uint64_t RsBits = 0;
+    bool needFreeB = false;
     compact::vector<uint64_t, 1> *b = NULL;
     compact::vector<uint64_t> *Rs = NULL;
     compact::vector<uint64_t> *Rb = NULL;

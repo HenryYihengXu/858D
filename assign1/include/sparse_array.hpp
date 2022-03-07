@@ -27,6 +27,7 @@ class sparse_array {
     uint64_t lastPos = 0;
 
 public:
+    ~sparse_array();
     void create(uint64_t size);
     void append(T elem, uint64_t pos);
     bool get_at_rank(uint64_t r, T& elem);
@@ -37,8 +38,20 @@ public:
     void save(string& fname);
     void load(string& fname);
 
+    void save(std::ofstream& seqOut);
+    void load(std::ifstream& seqIn);
     string to_string();
 };
+
+template <class T>
+sparse_array<T>::~sparse_array() {
+    if (b != NULL) {
+        delete(b);
+    }
+    if (r != NULL) {
+        delete(r);
+    }
+}
 
 template <class T>
 void sparse_array<T>::create(uint64_t size) {
@@ -158,12 +171,26 @@ uint64_t sparse_array<T>::num_elem() {
 
 template <class T>
 void sparse_array<T>::save(string& fname) {
+    std::ofstream seqOut(fname, std::ios::binary);
+    save(seqOut);
+    seqOut.close();
+}
 
+template <class T>
+void sparse_array<T>::save(std::ofstream& seqOut) {
+    r->save(seqOut);
 }
 
 template <class T>
 void sparse_array<T>::load(string& fname) {
+    std::ifstream seqIn(fname, std::ios::binary);
+    load(seqIn);
+    seqIn.close();
+}
 
+template <class T>
+void sparse_array<T>::load(std::ifstream& seqIn) {
+    r->load(seqIn);
 }
 
 template <class T>

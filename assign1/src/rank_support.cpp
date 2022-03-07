@@ -48,9 +48,9 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
 }
 
 rank_support::~rank_support() {
-    // if (b != NULL) {
-    //     delete(b);
-    // }
+    if (b != NULL && needFreeB) {
+        delete(b);
+    }
     if (Rs != NULL) {
         delete(Rs);
     }
@@ -93,16 +93,18 @@ void rank_support::load(string& fname) {
 }
 
 void rank_support::load(std::ifstream& seqIn) {
-    // if (b != NULL) {
-    //     delete(b);
-    // }
+    if (b != NULL && needFreeB) {
+        delete(b);
+    }
     if (Rs != NULL) {
         delete(Rs);
     }
     if (Rb != NULL) {
         delete(Rb);
     }
+
     b = new compact::vector<uint64_t, 1>{1};
+    needFreeB = true;
     Rs = new compact::vector<uint64_t>{1};
     Rb = new compact::vector<uint64_t>{1};
 

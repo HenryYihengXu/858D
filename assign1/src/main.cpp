@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     // test_save_load_r();
     // test_save_load_s();
     // test_create_append();
-    test_sparse_array();
+    // test_sparse_array();
 }
 
 void test_rank1(uint64_t num_test) {
