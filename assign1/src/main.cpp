@@ -11,6 +11,7 @@ using std::endl;
 void test_rank1(uint64_t num_test=10);
 void test_select1(uint64_t num_test=10);
 int generate_random_01(float oneFreq=0.5);
+void test_save_load_r();
 compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq=0.5);
 
 int main(int argc, char* argv[]) {
@@ -18,7 +19,8 @@ int main(int argc, char* argv[]) {
     // float oneFreq = atof(argv[2]);
     srand(time(NULL));
     // test_rank1();
-    test_select1();
+    // test_select1();
+    test_save_load_r();
 }
 
 void test_rank1(uint64_t num_test) {
@@ -34,7 +36,8 @@ void test_rank1(uint64_t num_test) {
         uint64_t rank1ByCount = r.rank1ByCount(idx);
         cout << "Test " << i << ": size = " << n << ", one frequency = " << oneFreq << 
             ", index = " << idx << ", rank 1 = " << rank1 << ", rank 1 by count = " << rank1ByCount << endl;
-        // cout << r.to_string();
+        cout << r.to_string();
+        
         if (rank1 == rank1ByCount) {
             cout << "passed\n";
             passed++;
@@ -89,6 +92,21 @@ void test_select1(uint64_t num_test) {
         cout << "SOME TESTS FAILED\n";
     }
     cout << "\n";
+}
+
+void test_save_load_r() {
+    uint64_t n = 16 + rand() % 64;
+    float oneFreq = (float)(rand()) / (float)RAND_MAX;
+    compact::vector<uint64_t, 1> b = generate_random_bit_vector(n, oneFreq);
+    rank_support r(&b);
+    cout << r.to_string() << endl;
+    string fname = "test.txt";
+    r.save(fname);
+
+    b = compact::vector<uint64_t, 1>{1};
+    r = rank_support(&b);
+    r.load(fname);
+    cout << r.to_string() << endl;
 }
 
 int generate_random_01(float oneFreq) {

@@ -14,9 +14,8 @@
 
 namespace compact {
 
-  inline uint64_t get_bits_per_element(const std::string &fname) {
+  inline uint64_t get_bits_per_element(std::ifstream &ifile) {
             // load the vector by reading from file
-            std::ifstream ifile(fname, std::ios::binary);
             uint64_t static_flag{0};
             ifile.read(reinterpret_cast<char *>(&static_flag), sizeof(static_flag));
             uint64_t bits_per_element;
@@ -287,18 +286,17 @@ public:
               // std::cerr << "wrote " << bytes() << " bytes of data at the end\n";
             }
 
-            void deserialize(const std::string &fname)
+            void deserialize(std::ifstream &ifile)
             {
               bool mmap = false;
               uint64_t bits_per_element{0}, w_size{0}, w_capacity{0};
-              deserialize(fname, mmap, bits_per_element, w_size, w_capacity);
+              deserialize(ifile, mmap, bits_per_element, w_size, w_capacity);
             }
 
-            void deserialize( const std::string& fname, bool mmap,
+            void deserialize( std::ifstream &ifile, bool mmap,
                               uint64_t& bits_per_element, uint64_t& w_size, uint64_t& w_capacity) {
               std::error_code error;
                 // load the vector by reading from file
-                std::ifstream ifile(fname, std::ios::binary);
                 uint64_t static_flag{0};
                 ifile.read(reinterpret_cast<char*>(&static_flag),
                            sizeof(static_flag));
@@ -342,7 +340,7 @@ class vector_dyn
   : public vector_imp::vector<vector_dyn<IDX, W, Allocator, UB, TS>, IDX, 0, W, Allocator, UB, TS>
 {
   typedef vector_imp::vector<vector_dyn<IDX, W, Allocator, UB, TS>, IDX, 0, W, Allocator, UB, TS> super;
-  const unsigned m_bits;    // Number of bits in an element
+  unsigned m_bits;    // Number of bits in an element
 
 public:
   typedef typename super::iterator              iterator;
@@ -396,10 +394,10 @@ public:
 
   void set_m_bits(size_t m) { m_bits = m; }
 
-  void deserialize(const std::string& fname) {
+  void deserialize(std::ifstream &ifile) {
     uint64_t bits_per_element, w_size, w_capacity;
     bool mmap = false;
-    static_cast<super*>(this)->deserialize(fname, mmap, bits_per_element, w_size, w_capacity);
+    static_cast<super*>(this)->deserialize(ifile, mmap, bits_per_element, w_size, w_capacity);
     set_m_bits(bits_per_element);
   }
 };

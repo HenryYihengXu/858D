@@ -11,9 +11,9 @@ using std::endl;
 rank_support::rank_support(compact::vector<uint64_t, 1> *b) 
 { 
     n = b->size();
-    if (n == 0) {
-        cout << "ERROR: empty bit vector" << endl;
-        exit(1);
+    if (n <= 1) {
+        cout << "Warning: bit vector is empty or has only 1 element. Creating an empty rank_support" << endl;
+        return;
     }
     RbCovers = ceil(log2(n));
     RsCovers = RbCovers * RbCovers;
@@ -43,6 +43,18 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
     }
 }
 
+rank_support::~rank_support() {
+    if (b != NULL) {
+        delete(b);
+    }
+    if (Rs != NULL) {
+        delete(Rs);
+    }
+    if (Rb != NULL) {
+        delete(Rb);
+    }
+}
+
 uint64_t rank_support::rank1(uint64_t i) {
     if (i >= n) {
         cout << "ERROR: index out of bound!\n";
@@ -59,11 +71,44 @@ uint64_t rank_support::overhead() {
 }
 
 void rank_support::save(string& fname) {
-
+    std::ofstream seqOut(fname, std::ios::binary);
+    b->serialize(seqOut);
+    Rs->serialize(seqOut);
+    Rb->serialize(seqOut);
+    seqOut.close();
 }
 
 void rank_support::load(string& fname) {
+    if (b != NULL) {
+        delete(b);
+    }
+    if (Rs != NULL) {
+        free(Rs);
+    }
+    if (Rb != NULL) {
+        free(Rb);
+    }
+    b = new compact::vector<uint64_t, 1>{1};
+    Rs = new compact::vector<uint64_t>{1};
+    Rb = new compact::vector<uint64_t>{1};
 
+    std::ifstream seqIn("test.txt", std::ios::binary);
+    b->deserialize(seqIn);
+    Rs->deserialize(seqIn);
+    Rb->deserialize(seqIn);
+    seqIn.close();
+
+    n = b->size();
+    if (n <= 1) {
+        cout << "ERROR: bit vector is empty or too short" << endl;
+        exit(1);
+    }
+    RbCovers = ceil(log2(n));
+    RsCovers = RbCovers * RbCovers;
+    RbSize = ceil((float)n / (float)RbCovers);
+    RsSize = ceil((float)n / (float)RsCovers);
+    RbBits = ceil(log2(RsCovers));
+    RsBits = ceil(log2(n));
 }
 
 uint64_t rank_support::popcount(uint64_t idx) {

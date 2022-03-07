@@ -21,6 +21,11 @@ uint64_t select_support::select1(uint64_t i, uint64_t left, uint64_t right) {
         cout << "There is no meaning for 0th 1. Returning -1\n";
         return -1;
     }
+    unsigned maxRank = r->rank1(r->getN() - 1);
+    if (i > maxRank) {
+        cout << "The largest rank in this bit array is " << maxRank << ", which is less than " << i << ". Returning -1\n";
+        return -1;
+    }
 
     uint64_t rank = 0;
 
@@ -29,13 +34,7 @@ uint64_t select_support::select1(uint64_t i, uint64_t left, uint64_t right) {
         if (rank == i) {
             return left;
         } else {
-            rank = r->rank1(right);
-            if (rank < i) {
-                cout << "The largest rank in this bit array is " << rank << ", which is less than " << i << ". Returning -1\n";
-                return -1;
-            } else {
-                return right;
-            }
+            return right;
         }
     }
 
