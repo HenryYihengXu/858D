@@ -16,6 +16,7 @@ class rank_support {
 public:
     rank_support(compact::vector<uint64_t, 1> *b);
     ~rank_support();
+    
     uint64_t rank1(uint64_t i);
     uint64_t overhead();
     void save(string& fname);

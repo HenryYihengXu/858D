@@ -44,9 +44,9 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
 }
 
 rank_support::~rank_support() {
-    if (b != NULL) {
-        delete(b);
-    }
+    // if (b != NULL) {
+    //     delete(b);
+    // }
     if (Rs != NULL) {
         delete(Rs);
     }
@@ -83,15 +83,15 @@ void rank_support::save(std::ofstream& seqOut) {
 }
 
 void rank_support::load(string& fname) {
-    std::ifstream seqIn("test.txt", std::ios::binary);
+    std::ifstream seqIn(fname, std::ios::binary);
     load(seqIn);
     seqIn.close();
 }
 
 void rank_support::load(std::ifstream& seqIn) {
-    if (b != NULL) {
-        delete(b);
-    }
+    // if (b != NULL) {
+    //     delete(b);
+    // }
     if (Rs != NULL) {
         delete(Rs);
     }

@@ -12,6 +12,12 @@ select_support::select_support(rank_support *r) {
     this->r = r;
 }
 
+select_support::~select_support() {
+    // if (r != NULL) {
+    //     delete(r);
+    // }
+}
+
 uint64_t select_support::select1(uint64_t i) {
     return select1(i, 0, this->r->getN() - 1);
 }
@@ -40,7 +46,7 @@ uint64_t select_support::select1(uint64_t i, uint64_t left, uint64_t right) {
 
     uint64_t mid = left + (right - left) / 2;
     rank = r->rank1(mid);
-    cout << "mid = " << mid << ", rank = " << rank << endl;
+    // cout << "mid = " << mid << ", rank = " << rank << endl;
     
     if (rank == i && r->bAt(mid) == 1) {
         return mid;
@@ -57,11 +63,27 @@ uint64_t select_support::overhead() {
 }
 
 void select_support::save(string& fname) {
+    std::ofstream seqOut(fname, std::ios::binary);
+    save(seqOut);
+    seqOut.close();
+}
 
+void select_support::save(std::ofstream& seqOut) {
+    r->save(seqOut);
 }
 
 void select_support::load(string& fname) {
+    std::ifstream seqIn(fname, std::ios::binary);
+    load(seqIn);
+    seqIn.close();
+}
 
+void select_support::load(std::ifstream& seqIn) {
+    r->load(seqIn);
+}
+
+string select_support::to_string() {
+    return r->to_string();
 }
 
 /* Only for test purposes */

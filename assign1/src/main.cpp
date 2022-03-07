@@ -12,6 +12,7 @@ void test_rank1(uint64_t num_test=10);
 void test_select1(uint64_t num_test=10);
 int generate_random_01(float oneFreq=0.5);
 void test_save_load_r();
+void test_save_load_s();
 compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq=0.5);
 
 int main(int argc, char* argv[]) {
@@ -20,7 +21,8 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
     // test_rank1();
     // test_select1();
-    test_save_load_r();
+    // test_save_load_r();
+    test_save_load_s();
 }
 
 void test_rank1(uint64_t num_test) {
@@ -107,6 +109,23 @@ void test_save_load_r() {
     r = rank_support(&b);
     r.load(fname);
     cout << r.to_string() << endl;
+}
+
+void test_save_load_s() {
+    uint64_t n = 16 + rand() % 64;
+    float oneFreq = (float)(rand()) / (float)RAND_MAX;
+    compact::vector<uint64_t, 1> b = generate_random_bit_vector(n, oneFreq);
+    rank_support r(&b);
+    select_support s(&r);
+    cout << s.to_string() << endl;
+    string fname = "test.txt";
+    s.save(fname);
+
+    b = compact::vector<uint64_t, 1>{1};
+    r = rank_support(&b);
+    s = select_support(&r);
+    s.load(fname);
+    cout << s.to_string() << endl;
 }
 
 int generate_random_01(float oneFreq) {
