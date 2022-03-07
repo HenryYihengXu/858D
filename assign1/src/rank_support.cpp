@@ -12,15 +12,15 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
 { 
     n = b->size();
     if (n <= 1) {
-        cout << "Warning: bit vector is empty or has only 1 element. Creating an empty rank_support" << endl;
+        cout << "WARNING: bit vector is empty or has only 1 element (so logn would be 0). Creating an empty rank_support" << endl;
         return;
     }
     RbCovers = ceil(log2(n));
     RsCovers = RbCovers * RbCovers;
     RbSize = ceil((float)n / (float)RbCovers);
     RsSize = ceil((float)n / (float)RsCovers);
-    RbBits = ceil(log2(RsCovers));
-    RsBits = ceil(log2(n));
+    RbBits = ceil(log2(RsCovers + 1));
+    RsBits = ceil(log2(n + 1));
 
     this->b = b;
     this->Rs = new compact::vector<uint64_t>(RsBits, RsSize);
@@ -108,7 +108,7 @@ void rank_support::load(std::ifstream& seqIn) {
 
     n = b->size();
     if (n <= 1) {
-        cout << "Warning: bit vector is empty or has only 1 element. Creating an empty rank_support" << endl;
+        cout << "WARNING: bit vector is empty or has only 1 element (so logn would be 0). Creating an empty rank_support" << endl;
         
         if (b != NULL) {
             delete(b);

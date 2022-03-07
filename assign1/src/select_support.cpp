@@ -24,8 +24,8 @@ uint64_t select_support::select1(uint64_t i) {
 
 uint64_t select_support::select1(uint64_t i, uint64_t left, uint64_t right) {
     if (i == 0) {
-        cout << "There is no meaning for 0th 1. Returning -1\n";
-        return -1;
+        cout << "There is no meaning for 0th 1. Returning 0\n";
+        return 0;
     }
     unsigned maxRank = r->rank1(r->getN() - 1);
     if (i > maxRank) {
@@ -89,8 +89,8 @@ string select_support::to_string() {
 /* Only for test purposes */
 uint64_t select_support::select1ByCount(uint64_t rank) {
     if (rank == 0) {
-        cout << "There is no meaning for 0th 1. Returning -1\n";
-        return -1;
+        cout << "There is no meaning for 0th 1. Returning 0\n";
+        return 0;
     }
     uint64_t count = 0;
     for (unsigned i = 0; i < r->getN(); i++) {

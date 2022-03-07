@@ -21,8 +21,8 @@ int main(int argc, char* argv[]) {
     srand(time(NULL));
     // test_rank1();
     // test_select1();
-    // test_save_load_r();
-    test_save_load_s();
+    test_save_load_r();
+    // test_save_load_s();
 }
 
 void test_rank1(uint64_t num_test) {
