@@ -72,37 +72,64 @@ uint64_t rank_support::overhead() {
 
 void rank_support::save(string& fname) {
     std::ofstream seqOut(fname, std::ios::binary);
-    b->serialize(seqOut);
-    Rs->serialize(seqOut);
-    Rb->serialize(seqOut);
+    save(seqOut);
     seqOut.close();
 }
 
+void rank_support::save(std::ofstream& seqOut) {
+    b->serialize(seqOut);
+    Rs->serialize(seqOut);
+    Rb->serialize(seqOut);
+}
+
 void rank_support::load(string& fname) {
+    std::ifstream seqIn("test.txt", std::ios::binary);
+    load(seqIn);
+    seqIn.close();
+}
+
+void rank_support::load(std::ifstream& seqIn) {
     if (b != NULL) {
         delete(b);
     }
     if (Rs != NULL) {
-        free(Rs);
+        delete(Rs);
     }
     if (Rb != NULL) {
-        free(Rb);
+        delete(Rb);
     }
     b = new compact::vector<uint64_t, 1>{1};
     Rs = new compact::vector<uint64_t>{1};
     Rb = new compact::vector<uint64_t>{1};
 
-    std::ifstream seqIn("test.txt", std::ios::binary);
     b->deserialize(seqIn);
     Rs->deserialize(seqIn);
     Rb->deserialize(seqIn);
-    seqIn.close();
 
     n = b->size();
     if (n <= 1) {
-        cout << "ERROR: bit vector is empty or too short" << endl;
-        exit(1);
+        cout << "Warning: bit vector is empty or has only 1 element. Creating an empty rank_support" << endl;
+        
+        if (b != NULL) {
+            delete(b);
+        }
+        if (Rs != NULL) {
+            delete(Rs);
+        }
+        if (Rb != NULL) {
+            delete(Rb);
+        }
+
+        RbCovers = 0;
+        RsCovers = 0;
+        RbSize = 0;
+        RsSize = 0;
+        RbBits = 0;
+        RsBits = 0;
+
+        return;
     }
+
     RbCovers = ceil(log2(n));
     RsCovers = RbCovers * RbCovers;
     RbSize = ceil((float)n / (float)RbCovers);

@@ -19,7 +19,9 @@ public:
     uint64_t rank1(uint64_t i);
     uint64_t overhead();
     void save(string& fname);
+    void save(std::ofstream& seqOut);
     void load(string& fname);
+    void load(std::ifstream& seqIn);
 
     uint64_t popcount(uint64_t idx);
     string to_string();
