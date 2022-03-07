@@ -1,8 +1,22 @@
-#include "../include/select_support.hpp"
 #include <iostream>
 #include <random>
 #include <iomanip>
 #include <time.h>
+
+#ifndef INCLUDE_RANK_SUPPORT
+    #define INCLUDE_RANK_SUPPORT
+    #include "../include/rank_support.hpp"
+#endif
+
+#ifndef INCLUDE_SELECT_SUPPORT
+    #define INCLUDE_SELECT_SUPPORT
+    #include "../include/select_support.hpp"
+#endif
+
+#ifndef INCLUDE_SPARSE_ARRAY
+    #define INCLUDE_SPARSE_ARRAY
+    #include "../include/sparse_array.hpp"
+#endif
 
 using std::string;
 using std::cout;
@@ -13,16 +27,22 @@ void test_select1(uint64_t num_test=10);
 int generate_random_01(float oneFreq=0.5);
 void test_save_load_r();
 void test_save_load_s();
+void test_create_append();
 compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq=0.5);
 
 int main(int argc, char* argv[]) {
     // uint64_t n = atoi(argv[1]);
     // float oneFreq = atof(argv[2]);
+
+    // string a = "sdfa\n";
+    // cout << decltype(a) << endl;
+
     srand(time(NULL));
     // test_rank1();
     // test_select1();
-    test_save_load_r();
+    // test_save_load_r();
     // test_save_load_s();
+    test_create_append();
 }
 
 void test_rank1(uint64_t num_test) {
@@ -126,6 +146,38 @@ void test_save_load_s() {
     s = select_support(&r);
     s.load(fname);
     cout << s.to_string() << endl;
+}
+
+void test_create_append() {
+    sparse_array<string> sa{};
+    sa.create(60);
+    cout << sa.to_string();
+    sa.append("a", 0);
+    cout << sa.to_string();
+    sa.append("x", 0);
+    cout << sa.to_string();
+    sa.append("b", 8);
+    cout << sa.to_string();
+    sa.append("c", 21);
+    cout << sa.to_string();
+    sa.append("x", 18);
+    cout << sa.to_string();
+    sa.append("x", 21);
+    cout << sa.to_string();
+    sa.append("d", 29);
+    cout << sa.to_string();
+    sa.append("e", 38);
+    cout << sa.to_string();
+    sa.append("x", 60);
+    cout << sa.to_string();
+    sa.append("f", 45);
+    cout << sa.to_string();
+    sa.append("g", 57);
+    cout << sa.to_string();
+    sa.append("x", 60);
+    cout << sa.to_string();
+    sa.append("x", 61);
+    cout << sa.to_string();
 }
 
 int generate_random_01(float oneFreq) {

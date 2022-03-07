@@ -37,9 +37,13 @@ public:
     uint64_t getRsBits();
     uint64_t getRbBits();
 
-    uint64_t bAt(uint64_t i);
-    uint64_t RsAt(uint64_t i);
-    uint64_t RbAt(uint64_t i);
+    uint64_t getBAt(uint64_t i);
+    uint64_t getRsAt(uint64_t i);
+    uint64_t getRbAt(uint64_t i);
+
+    void setBAt(uint64_t i, uint64_t v);
+    void setRsAt(uint64_t i, uint64_t v);
+    void setRbAt(uint64_t i, uint64_t v);
 
     void preExperiment();
 };

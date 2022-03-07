@@ -1,5 +1,9 @@
 #include "../include/compact_vector.hpp"
-#include "../include/rank_support.hpp"
+#ifndef INCLUDE_RANK_SUPPORT
+    #define INCLUDE_RANK_SUPPORT
+    #include "../include/rank_support.hpp"
+#endif
+
 
 class select_support {
     rank_support *r = NULL;

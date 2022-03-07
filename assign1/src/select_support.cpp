@@ -1,4 +1,13 @@
-#include "../include/select_support.hpp"
+#ifndef INCLUDE_RANK_SUPPORT
+    #define INCLUDE_RANK_SUPPORT
+    #include "../include/rank_support.hpp"
+#endif
+
+#ifndef INCLUDE_SELECT_SUPPORT
+    #define INCLUDE_SELECT_SUPPORT
+    #include "../include/select_support.hpp"
+#endif
+
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -48,7 +57,7 @@ uint64_t select_support::select1(uint64_t i, uint64_t left, uint64_t right) {
     rank = r->rank1(mid);
     // cout << "mid = " << mid << ", rank = " << rank << endl;
     
-    if (rank == i && r->bAt(mid) == 1) {
+    if (rank == i && r->getBAt(mid) == 1) {
         return mid;
     } else if (rank < i) {
         return select1(i, mid, right);
@@ -94,7 +103,7 @@ uint64_t select_support::select1ByCount(uint64_t rank) {
     }
     uint64_t count = 0;
     for (unsigned i = 0; i < r->getN(); i++) {
-        if (r->bAt(i) == 1) {
+        if (r->getBAt(i) == 1) {
             count++;
         }
         if (count == rank) {

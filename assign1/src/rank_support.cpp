@@ -1,4 +1,8 @@
-#include "../include/rank_support.hpp"
+#ifndef INCLUDE_RANK_SUPPORT
+    #define INCLUDE_RANK_SUPPORT
+    #include "../include/rank_support.hpp"
+#endif
+
 #include <iostream>
 #include <math.h>
 #include <sstream>
@@ -261,16 +265,28 @@ uint64_t rank_support::getRbBits() {
     return RbBits;
 }
 
-uint64_t rank_support::bAt(uint64_t i) {
+uint64_t rank_support::getBAt(uint64_t i) {
     return b->at(i);
 }
 
-uint64_t rank_support::RsAt(uint64_t i) {
+uint64_t rank_support::getRsAt(uint64_t i) {
     return Rs->at(i);
 }
 
-uint64_t rank_support::RbAt(uint64_t i) {
+uint64_t rank_support::getRbAt(uint64_t i) {
     return Rb->at(i);
+}
+
+void rank_support::setBAt(uint64_t i, uint64_t v) {
+    b->at(i) = v;
+}
+
+void rank_support::setRsAt(uint64_t i, uint64_t v) {
+    Rs->at(i) = v;
+}
+
+void rank_support::setRbAt(uint64_t i, uint64_t v) {
+    Rb->at(i) = v;
 }
 
 void rank_support::preExperiment() {
