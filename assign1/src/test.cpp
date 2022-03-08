@@ -18,6 +18,11 @@
     #include "../include/sparse_array.hpp"
 #endif
 
+#ifndef INCLUDE_UTIL
+    #define INCLUDE_UTIL
+    #include "../include/util.hpp"
+#endif
+
 using std::string;
 using std::cout;
 using std::endl;
@@ -29,20 +34,11 @@ void test_save_load_s();
 void test_create_append();
 void test_sparse_array();
 void test_save_load_sparse_array();
-int generate_random_01(float oneFreq=0.5);
-compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq=0.5);
-sparse_array<string> generate_random_sparse_array(uint64_t size, float sparsity);
 
 int main(int argc, char* argv[]) {
-    // uint64_t n = atoi(argv[1]);
-    // float oneFreq = atof(argv[2]);
-
-    // string a = "sdfa\n";
-    // cout << decltype(a) << endl;
-
     srand(time(NULL));
-    // test_rank1();
-    test_select1();
+    test_rank1();
+    // test_select1();
     // test_save_load_r();
     // test_save_load_s();
     // test_create_append();
@@ -251,38 +247,4 @@ void test_save_load_sparse_array() {
     cout << sa2.to_string() << endl;
     sa2.load(fname);
     cout << sa2.to_string() << endl;
-}
-
-int generate_random_01(float oneFreq) {
-    float r = (float)(rand()) / (float)RAND_MAX;
-    if (r > oneFreq) {
-        return 0;
-    } else {
-        return 1;
-    }
-}
-
-compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq) {
-    compact::vector<uint64_t, 1> b(size);
-    for (uint64_t i = 0; i < b.size(); i++) {
-        b.at(i) = generate_random_01(oneFreq);
-    }
-    return b;
-}
-
-sparse_array<string> generate_random_sparse_array(uint64_t size, float sparsity) {
-    compact::vector<uint64_t, 1> b = generate_random_bit_vector(size, 1 - sparsity);
-
-    sparse_array<string> sa{};
-    sa.create(size);
-
-    uint64_t count = 0;
-    for (uint64_t i = 0; i < b.size(); i++) {
-        if (b.at(i) == 1) {
-            count++;
-            sa.append(std::to_string(count), i);
-        }
-    }
-
-    return sa;
 }
