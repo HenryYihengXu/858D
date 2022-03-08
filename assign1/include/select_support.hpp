@@ -1,8 +1,8 @@
+#ifndef __SELECT_SUPPORT_H__
+#define __SELECT_SUPPORT_H__
+
 #include "../include/compact_vector.hpp"
-#ifndef INCLUDE_RANK_SUPPORT
-    #define INCLUDE_RANK_SUPPORT
-    #include "../include/rank_support.hpp"
-#endif
+#include "../include/rank_support.hpp"
 
 
 class select_support {
@@ -24,3 +24,5 @@ public:
     /* Only for test purposes */
     uint64_t select1ByCount(uint64_t i);
 };
+
+#endif /* __SELECT_SUPPORT_H__ */

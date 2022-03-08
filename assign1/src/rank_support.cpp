@@ -1,16 +1,13 @@
-#ifndef INCLUDE_RANK_SUPPORT
-    #define INCLUDE_RANK_SUPPORT
-    #include "../include/rank_support.hpp"
-#endif
-
 #include <iostream>
 #include <math.h>
 #include <sstream>
 #include <iomanip>
+#include "../include/rank_support.hpp"
 
 using std::string;
 using std::cout;
 using std::endl;
+
 
 rank_support::rank_support() {}
 

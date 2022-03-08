@@ -1,13 +1,9 @@
-#include "../include/compact_vector.hpp"
-#ifndef INCLUDE_RANK_SUPPORT
-    #define INCLUDE_RANK_SUPPORT
-    #include "../include/rank_support.hpp"
-#endif
+#ifndef __SPARSE_ARRAY_H__
+#define __SPARSE_ARRAY_H__
 
-#ifndef INCLUDE_SELECT_SUPPORT
-    #define INCLUDE_SELECT_SUPPORT
-    #include "../include/select_support.hpp"
-#endif
+#include "../include/compact_vector.hpp"
+#include "../include/rank_support.hpp"
+#include "../include/select_support.hpp"
 
 #include <iostream>
 #include <math.h>
@@ -229,3 +225,5 @@ string sparse_array<T>::to_string() {
 
     return result.str();
 }
+
+#endif /* __SPARSE_ARRAY_H__ */

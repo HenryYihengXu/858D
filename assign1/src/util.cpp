@@ -3,10 +3,7 @@
 #include <iomanip>
 #include <time.h>
 
-#ifndef INCLUDE_UTIL
-    #define INCLUDE_UTIL
-    #include "../include/util.hpp"
-#endif
+#include "../include/util.hpp"
 
 using std::string;
 using std::cout;

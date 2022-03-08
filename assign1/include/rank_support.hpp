@@ -1,3 +1,6 @@
+#ifndef __RANK_SUPPORT_H__
+#define __RANK_SUPPORT_H__
+
 #include "../include/compact_vector.hpp"
 using std::string;
 
@@ -49,3 +52,5 @@ public:
 
     void preExperiment();
 };
+
+#endif /* __RANK_SUPPORT_H__ */

@@ -3,24 +3,14 @@
 #include <sstream>
 #include <iomanip>
 
-#ifndef INCLUDE_RANK_SUPPORT
-    #define INCLUDE_RANK_SUPPORT
-    #include "../include/rank_support.hpp"
-#endif
-
-#ifndef INCLUDE_SELECT_SUPPORT
-    #define INCLUDE_SELECT_SUPPORT
-    #include "../include/select_support.hpp"
-#endif
-
-#ifndef INCLUDE_SPARSE_ARRAY
-    #define INCLUDE_SPARSE_ARRAY
-    #include "../include/sparse_array.hpp"
-#endif
+#include "../include/rank_support.hpp"
+#include "../include/select_support.hpp"
+#include "../include/sparse_array.hpp"
 
 using std::string;
 using std::cout;
 using std::endl;
+
 
 template <class T>
 void sparse_array<T>::create(uint64_t size) {
