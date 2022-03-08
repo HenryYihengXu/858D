@@ -62,9 +62,11 @@ uint64_t select_support::select1(uint64_t i, uint64_t left, uint64_t right) {
     }
 }
 
+/*  Should be exactly same as rank_support, 
+    as the only thing select_support wraps is a rank_support
+*/
 uint64_t select_support::overhead() {
-    uint64_t size = 0;
-    return size;
+    return r->overhead();
 }
 
 void select_support::save(string& fname) {

@@ -74,6 +74,30 @@ uint64_t rank_support::rank1(uint64_t i) {
 
 uint64_t rank_support::overhead() {
     uint64_t size = 0;
+
+    /*  Private simple variables: n, RbCovers, RsCovers, etc. See class def.
+        Define them to avoid recomputing log, which does takes some time. 
+    */
+    size += 7 * 64 + 8;
+
+    /*  Size of b. 
+        Although compact::vector stores bits, it has to allocate multiples of uint64_t.
+        Changing uint64_t to smaller type hardly makes any difference. 
+        The size will be about n.
+    */
+    size += n / 64 * 64;
+
+    /*  Size of Rs.
+        The total bits is RsSize * RsBits.
+        But similarly, compact::vector allocates multiple of uint64_t.
+    */
+    size += RsSize * RsBits / 64 * 64;
+
+    /*  Size of Rb.
+        Same as above.
+    */
+    size += RbSize * RbBits / 64 * 64;
+    
     return size;
 }
 
