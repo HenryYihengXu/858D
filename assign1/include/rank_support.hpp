@@ -49,8 +49,6 @@ public:
     void setBAt(uint64_t i, uint64_t v);
     void setRsAt(uint64_t i, uint64_t v);
     void setRbAt(uint64_t i, uint64_t v);
-
-    void preExperiment();
 };
 
 #endif /* __RANK_SUPPORT_H__ */

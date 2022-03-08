@@ -318,33 +318,3 @@ void rank_support::setRbAt(uint64_t i, uint64_t v) {
     // Rb[i] = v;
     Rb->at(i) = v;
 }
-
-void rank_support::preExperiment() {
-    b->at(0) = -1;
-    Rs->at(0) = -1;
-    Rs->at(1) = -1;
-    Rs->at(2) = -1;
-    Rb->at(0) = 11;
-    cout << "size of b: " << b->size() << endl;
-    cout << "size of Rs: " << Rs->size() << endl;
-    cout << "size of Rb: " << Rb->size() << endl;
-    cout << endl;
-
-    cout << "bits of b: " << b->bits() << endl;
-    cout << "bits of Rs: " << Rs->bits() << endl;
-    cout << "bits of Rb: " << Rb->bits() << endl;
-    cout << endl;
-
-    cout << "b[0]: " << b->at(0) << endl;
-    cout << "Rs[0]: " << Rs->at(0) << endl;
-    cout << "Rb[0]: " << Rb->at(0) << endl;
-    cout << endl;
-
-    bool *boolDataRs = (bool *)Rs->get() + 2;
-    uint16_t *wordDataRs = (uint16_t *)boolDataRs;
-    uint16_t *wordDataRb = (uint16_t *)Rb->get();
-    cout << "popcount of word Rs[0] " << std::bitset<16>(wordDataRs[0]) << ": " << std::popcount(wordDataRs[0]) << endl;
-    cout << "popcount of word Rb[0] " << std::bitset<16>(wordDataRb[0]) << ": " << std::popcount(wordDataRb[0]) << endl;
-    cout << endl;
-
-}
