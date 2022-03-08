@@ -28,7 +28,7 @@ compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float one
 }
 
 sparse_array<string> generate_random_sparse_array(uint64_t size, float sparsity) {
-    compact::vector<uint64_t, 1> b = generate_random_bit_vector(size, 1 - sparsity);
+    compact::vector<uint64_t, 1> b = generate_random_bit_vector(size, sparsity);
 
     sparse_array<string> sa{};
     sa.create(size);
@@ -40,6 +40,5 @@ sparse_array<string> generate_random_sparse_array(uint64_t size, float sparsity)
             sa.append(std::to_string(count), i);
         }
     }
-
     return sa;
 }

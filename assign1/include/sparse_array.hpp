@@ -35,6 +35,7 @@ public:
 
     void save(std::ofstream& seqOut);
     void load(std::ifstream& seqIn);
+    uint64_t space();
     string to_string();
 };
 
@@ -48,6 +49,7 @@ sparse_array<T>::~sparse_array() {
 template <class T>
 void sparse_array<T>::create(uint64_t size) {
     compact::vector<uint64_t, 1> *b = new compact::vector<uint64_t, 1>(size);
+    b->clear_mem();
     r = new rank_support(b);
     presentElements = new std::vector<T>{};
 }
@@ -124,8 +126,19 @@ bool sparse_array<T>::get_at_index(uint64_t r, T& elem) {
         return false;
     }
 
-    uint64_t elemIdx = this->r->rank1(r) - 1;
+    uint64_t elemIdx = 0;
+    elemIdx = this->r->rank1(r) - 1;
     elem = presentElements->at(elemIdx);
+
+    // try {
+    //     elemIdx = this->r->rank1(r) - 1;
+    //     elem = presentElements->at(elemIdx);
+    // } catch (...) {
+    //     cout << this->to_string();
+    //     cout << "rank1ByCount = " << this->r->rank1ByCount(size() - 1) << endl;
+    //     cout << "r = " << r << ", elemIdx = " << elemIdx << ", num_elem = " << num_elem() << '\n';
+    // }
+
     return true;
 }
 
@@ -206,6 +219,22 @@ void sparse_array<T>::load(std::ifstream& seqIn) {
     seqIn.read(reinterpret_cast<char *>(presentElements), sizeof(T) * num_elem);
 }
 
+/* currently only work for T = string */
+template <class T>
+uint64_t sparse_array<T>::space() {
+    if (r == NULL) {
+        cout << "ERROR: Array is not created. Returning 0.\n";
+        return 0;
+    }
+
+    uint64_t space = 0;
+    for (T elem : *presentElements) {
+        space += elem.size() * 8;
+    }
+    return space + r->overhead() + 64;
+}
+
+/* currently only work for T = string */
 template <class T>
 string sparse_array<T>::to_string() {
     std::stringstream result;

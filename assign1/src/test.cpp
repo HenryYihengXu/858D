@@ -22,8 +22,8 @@ void test_save_load_sparse_array();
 
 int main(int argc, char* argv[]) {
     srand(time(NULL));
-    test_rank1();
-    // test_select1();
+    // test_rank1();
+    test_select1();
     // test_save_load_r();
     // test_save_load_s();
     // test_create_append();
@@ -73,14 +73,15 @@ void test_select1(uint64_t num_test) {
         select_support s(&r);
 
         unsigned maxRank = r.rank1(n - 1);
+
         if (maxRank == 0) {
             i--;
             continue;
         }
-        uint64_t rank = rand() % maxRank;
+
+        uint64_t rank = 1 + rand() % maxRank;
         unsigned select1 = s.select1(rank);
         unsigned select1ByCount = s.select1ByCount(rank);
-        uint64_t idx = rand() % n;
         cout << "Test " << i << ": r size = " << n << ", one frequency = " << oneFreq << 
             ", rank to select = " << rank << ", select 1 = " << select1 << ", select 1 by count = " << select1ByCount << endl;
         cout << r.to_string();
@@ -149,34 +150,35 @@ void test_save_load_s() {
 
 void test_create_append() {
     sparse_array<string> sa{};
-    sa.create(60);
-    cout << sa.to_string();
-    sa.append("a", 0);
-    cout << sa.to_string();
-    sa.append("x", 0);
-    cout << sa.to_string();
-    sa.append("b", 8);
-    cout << sa.to_string();
-    sa.append("c", 21);
-    cout << sa.to_string();
-    sa.append("x", 18);
-    cout << sa.to_string();
-    sa.append("x", 21);
-    cout << sa.to_string();
-    sa.append("d", 29);
-    cout << sa.to_string();
-    sa.append("e", 38);
-    cout << sa.to_string();
-    sa.append("x", 60);
-    cout << sa.to_string();
-    sa.append("f", 45);
-    cout << sa.to_string();
-    sa.append("g", 57);
-    cout << sa.to_string();
-    sa.append("x", 60);
-    cout << sa.to_string();
-    sa.append("x", 61);
-    cout << sa.to_string();
+    sa.create(600000);
+    cout << sa.num_elem_at(599999) << endl;
+    // cout << sa.to_string();
+    // sa.append("a", 0);
+    // cout << sa.to_string();
+    // sa.append("x", 0);
+    // cout << sa.to_string();
+    // sa.append("b", 8);
+    // cout << sa.to_string();
+    // sa.append("c", 21);
+    // cout << sa.to_string();
+    // sa.append("x", 18);
+    // cout << sa.to_string();
+    // sa.append("x", 21);
+    // cout << sa.to_string();
+    // sa.append("d", 29);
+    // cout << sa.to_string();
+    // sa.append("e", 38);
+    // cout << sa.to_string();
+    // sa.append("x", 60);
+    // cout << sa.to_string();
+    // sa.append("f", 45);
+    // cout << sa.to_string();
+    // sa.append("g", 57);
+    // cout << sa.to_string();
+    // sa.append("x", 60);
+    // cout << sa.to_string();
+    // sa.append("x", 61);
+    // cout << sa.to_string();
 }
 
 void test_sparse_array() {

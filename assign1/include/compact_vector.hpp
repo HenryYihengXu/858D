@@ -261,7 +261,7 @@ public:
             // *Note* : would be nice to have the constructor
             // optionally take a value to fill in or use a default ...
             inline void clear_mem() {
-                std::memset(this->get(), 0, this->capacity_bytes());
+                std::memset(this->get(), 0, this->bytes());
             }
 
             void serialize(std::ofstream &of)

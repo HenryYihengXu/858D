@@ -30,6 +30,9 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
     this->Rs = new compact::vector<uint64_t>(RsBits, RsSize);
     this->Rb = new compact::vector<uint64_t>(RbBits, RbSize);
 
+    this->Rs->clear_mem();
+    this->Rb->clear_mem();
+
     uint64_t RsCount = 0;
     uint64_t RbCount = 0;
     for (uint64_t i = 0; i < n; i++) {
@@ -77,21 +80,14 @@ uint64_t rank_support::overhead() {
     */
     size += 7 * 64 + 8;
 
-    /*  Size of b. 
-        Although compact::vector stores bits, it has to allocate multiples of uint64_t.
-        Changing uint64_t to smaller type hardly makes any difference. 
-        The size will be about n.
-    */
-    size += n / 64 * 64;
-
     /*  Size of Rs.
-        The total bits is RsSize * RsBits.
-        But similarly, compact::vector allocates multiple of uint64_t.
+        The total bits is RsSize * RsBits. However, although compact::vector stores bits, 
+        it has to allocate multiples of uint64_t.
     */
-    size += RsSize * RsBits / 64 * 64;
+    size += ceil(RsSize * RsBits / 64) * 64;
 
     /*  Size of Rb.
-        Same as above.
+        Same argument as above.
     */
     size += RbSize * RbBits / 64 * 64;
     
@@ -119,13 +115,16 @@ void rank_support::load(string& fname) {
 void rank_support::load(std::ifstream& seqIn) {
     if (b == NULL) {
         b = new compact::vector<uint64_t, 1>(1);
+        // b->clear_mem();
         needFreeB = true;
     }
     if (Rs == NULL) {
         Rs = new compact::vector<uint64_t>(1,1);
+        // Rs->clear_mem();
     }
     if (Rb == NULL) {
         Rb = new compact::vector<uint64_t>(1,1);
+        // Rb->clear_mem();
     }
 
     b->deserialize(seqIn);
@@ -176,6 +175,9 @@ uint64_t rank_support::popcount(uint64_t idx) {
     /* if block: the region sits in a single word */
     if (blockStartIdx % 16 + idx % RbCovers < 16) {
         uint16_t wordForBlock = wordDataB[wordIdx];
+        if (n / 16 == wordIdx) {
+            wordForBlock = wordForBlock | (1UL >> (16 - n % 16));
+        } 
         // cout << "word for block: " << std::bitset<16>(wordForBlock) << endl;
         wordForBlock = wordForBlock >> (blockStartIdx % 16);
         wordForBlock = wordForBlock << (16 - 1 - idx % RbCovers);
@@ -184,6 +186,9 @@ uint64_t rank_support::popcount(uint64_t idx) {
     } else {
         uint16_t word1ForBlock = wordDataB[wordIdx];
         uint16_t word2ForBlock = wordDataB[wordIdx + 1];
+        if (n / 16 == wordIdx + 1) {
+            word2ForBlock = word2ForBlock | (1UL >> (16 - n % 16));
+        } 
         word1ForBlock = word1ForBlock >> (blockStartIdx % 16);
         word2ForBlock = word2ForBlock << (32 - 1 - blockStartIdx % 16 - idx % RbCovers);
         return std::popcount(word1ForBlock) + std::popcount(word2ForBlock);
@@ -300,14 +305,17 @@ uint64_t rank_support::getRbAt(uint64_t i) {
 }
 
 void rank_support::setBAt(uint64_t i, uint64_t v) {
+    // b[i] = v;
     b->at(i) = v;
 }
 
 void rank_support::setRsAt(uint64_t i, uint64_t v) {
+    // Rs[i] = v;
     Rs->at(i) = v;
 }
 
 void rank_support::setRbAt(uint64_t i, uint64_t v) {
+    // Rb[i] = v;
     Rb->at(i) = v;
 }
 
