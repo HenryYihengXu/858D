@@ -15,6 +15,7 @@ class rank_support {
     compact::vector<uint64_t> *Rb = NULL;
 
 public:
+    rank_support();
     rank_support(compact::vector<uint64_t, 1> *b);
     ~rank_support();
     

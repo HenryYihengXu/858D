@@ -20,9 +20,8 @@ using std::endl;
 
 template <class T>
 class sparse_array {
-    compact::vector<uint64_t, 1> *b = NULL;
     rank_support *r = NULL;
-    std::vector<T> presentElements;
+    std::vector<T> *presentElements = NULL;
 
     uint64_t lastPos = 0;
 
@@ -45,9 +44,6 @@ public:
 
 template <class T>
 sparse_array<T>::~sparse_array() {
-    if (b != NULL) {
-        delete(b);
-    }
     if (r != NULL) {
         delete(r);
     }
@@ -55,31 +51,32 @@ sparse_array<T>::~sparse_array() {
 
 template <class T>
 void sparse_array<T>::create(uint64_t size) {
-    b = new compact::vector<uint64_t, 1>(size);
+    compact::vector<uint64_t, 1> *b = new compact::vector<uint64_t, 1>(size);
     r = new rank_support(b);
+    presentElements = new std::vector<T>{};
 }
 
 template <class T>
 void sparse_array<T>::append(T elem, uint64_t pos) {
-    if (b == NULL) {
+    if (r == NULL) {
         cout << "ERROR: Array is not created. Stop appending.\n";
         return;
     }
 
-    if (pos >= b->size()) {
+    if (pos >= r->getN()) {
         cout << "ERROR: Index out of bound. Stop appending.\n";
         return;
     }
 
-    if (pos == 0 && presentElements.size() != 0 || pos != 0 && pos <= lastPos) {
+    if (pos == 0 && presentElements->size() != 0 || pos != 0 && pos <= lastPos) {
         cout << "ERROR: Insertion out of order or inserting to a position already occupied. Stop appending.\n";
         return;
     }
 
     lastPos = pos;
 
-    presentElements.push_back(elem);
-    b->at(pos) = 1;
+    presentElements->push_back(elem);
+    r->setBAt(pos, 1);
 
     uint64_t RsCovers = r->getRsCovers();
     uint64_t RbCovers = r->getRbCovers();
@@ -102,50 +99,50 @@ void sparse_array<T>::append(T elem, uint64_t pos) {
 
 template <class T>
 bool sparse_array<T>::get_at_rank(uint64_t r, T& elem) {
-    if (b == NULL) {
+    if (this->r == NULL) {
         cout << "ERROR: Array is not created. Returning false.\n";
         return false;
     }
 
-    if (r >= presentElements.size()) {
+    if (r >= presentElements->size()) {
         return false;
     }
 
-    elem = presentElements.at(r);
+    elem = presentElements->at(r);
     return true;
 }
 
 template <class T>
 bool sparse_array<T>::get_at_index(uint64_t r, T& elem) {
-    if (b == NULL) {
+    if (this->r == NULL) {
         cout << "ERROR: Array is not created. Returning false.\n";
         return false;
     }
 
-    if (r >= b->size()) {
+    if (r >= this->r->getN()) {
         cout << "ERROR: Index out of bound. Returning false.\n";
         return false;
     }
 
-    if (b->at(r) == 0) {
+    if (this->r->getBAt(r) == 0) {
         return false;
     }
 
     uint64_t elemIdx = this->r->rank1(r) - 1;
-    elem = presentElements.at(elemIdx);
+    elem = presentElements->at(elemIdx);
     return true;
 }
 
 template <class T>
 uint64_t sparse_array<T>::num_elem_at(uint64_t r) {
-    if (b == NULL) {
+    if (this->r == NULL) {
         cout << "ERROR: Array is not created. Returning 0.\n";
         return 0;
     }
 
-    if (r >= b->size()) {
+    if (r >= this->r->getN()) {
         cout << "ERROR: Index out of bound. Returning total number of present elements.\n";
-        return presentElements.size();
+        return presentElements->size();
     }
 
     return this->r->rank1(r);
@@ -153,20 +150,20 @@ uint64_t sparse_array<T>::num_elem_at(uint64_t r) {
 
 template <class T>
 uint64_t sparse_array<T>::size() {
-    if (b == NULL) {
+    if (r == NULL) {
         cout << "ERROR: Array is not created. Returning 0.\n";
         return 0;
     }
-    return b->size();
+    return r->getN();
 }
 
 template <class T>
 uint64_t sparse_array<T>::num_elem() {
-    if (b == NULL) {
+    if (r == NULL) {
         cout << "ERROR: Array is not created. Returning 0.\n";
         return 0;
     }
-    return presentElements.size();
+    return presentElements->size();
 }
 
 template <class T>
@@ -179,6 +176,14 @@ void sparse_array<T>::save(string& fname) {
 template <class T>
 void sparse_array<T>::save(std::ofstream& seqOut) {
     r->save(seqOut);
+
+    uint64_t num_elem = presentElements->size();
+    seqOut.write(reinterpret_cast<char *>(&num_elem), sizeof(num_elem));
+
+    seqOut.write(reinterpret_cast<char *>(presentElements), sizeof(T) * num_elem);
+    // for (uint64_t i = 0; i < num_elem; i++) {
+    //     seqOut.write(reinterpret_cast<char *>(&presentElements[i]), sizeof(T));
+    // }
 }
 
 template <class T>
@@ -190,7 +195,19 @@ void sparse_array<T>::load(string& fname) {
 
 template <class T>
 void sparse_array<T>::load(std::ifstream& seqIn) {
+    if (presentElements != NULL) {
+        free(presentElements);
+    }
+    if (r == NULL) {
+        r = new rank_support();
+    }
+
     r->load(seqIn);
+
+    uint64_t num_elem = 0;
+    seqIn.read(reinterpret_cast<char *>(&num_elem), sizeof(num_elem));
+    presentElements = new std::vector<T>(num_elem);
+    seqIn.read(reinterpret_cast<char *>(presentElements), sizeof(T) * num_elem);
 }
 
 template <class T>
@@ -201,9 +218,9 @@ string sparse_array<T>::to_string() {
 
     result << "Present elements: \n";
     result << "[";
-    uint64_t presentElementsSize = presentElements.size();
+    uint64_t presentElementsSize = presentElements->size();
     for (uint64_t i = 0; i < presentElementsSize; i++) {
-        result << presentElements.at(i);
+        result << presentElements->at(i);
         if (i != presentElementsSize - 1) {
             result << ", ";
         }

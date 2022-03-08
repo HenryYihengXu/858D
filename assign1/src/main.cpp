@@ -24,12 +24,14 @@ using std::endl;
 
 void test_rank1(uint64_t num_test=10);
 void test_select1(uint64_t num_test=10);
-int generate_random_01(float oneFreq=0.5);
 void test_save_load_r();
 void test_save_load_s();
 void test_create_append();
 void test_sparse_array();
+void test_save_load_sparse_array();
+int generate_random_01(float oneFreq=0.5);
 compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float oneFreq=0.5);
+sparse_array<string> generate_random_sparse_array(uint64_t size, float sparsity);
 
 int main(int argc, char* argv[]) {
     // uint64_t n = atoi(argv[1]);
@@ -40,11 +42,12 @@ int main(int argc, char* argv[]) {
 
     srand(time(NULL));
     // test_rank1();
-    // test_select1();
+    test_select1();
     // test_save_load_r();
     // test_save_load_s();
     // test_create_append();
     // test_sparse_array();
+    // test_save_load_sparse_array();
 }
 
 void test_rank1(uint64_t num_test) {
@@ -121,16 +124,23 @@ void test_select1(uint64_t num_test) {
 void test_save_load_r() {
     uint64_t n = 16 + rand() % 64;
     float oneFreq = (float)(rand()) / (float)RAND_MAX;
+
     compact::vector<uint64_t, 1> b = generate_random_bit_vector(n, oneFreq);
     rank_support r(&b);
     cout << r.to_string() << endl;
     string fname = "test.txt";
     r.save(fname);
 
-    b = compact::vector<uint64_t, 1>{1};
-    r = rank_support(&b);
     r.load(fname);
     cout << r.to_string() << endl;
+
+    n = 16 + rand() % 64;
+    oneFreq = (float)(rand()) / (float)RAND_MAX;
+    compact::vector<uint64_t, 1> b2 = generate_random_bit_vector(n, oneFreq);
+    rank_support r2 = rank_support(&b2);
+    cout << r2.to_string() << endl;
+    r2.load(fname);
+    cout << r2.to_string() << endl;
 }
 
 void test_save_load_s() {
@@ -143,11 +153,17 @@ void test_save_load_s() {
     string fname = "test.txt";
     s.save(fname);
 
-    b = compact::vector<uint64_t, 1>{1};
-    r = rank_support(&b);
-    s = select_support(&r);
     s.load(fname);
     cout << s.to_string() << endl;
+
+    n = 16 + rand() % 64;
+    oneFreq = (float)(rand()) / (float)RAND_MAX;
+    compact::vector<uint64_t, 1> b2 = generate_random_bit_vector(n, oneFreq);
+    rank_support r2(&b2);
+    select_support s2(&r2);
+    cout << s2.to_string() << endl;
+    s2.load(fname);
+    cout << s2.to_string() << endl;
 }
 
 void test_create_append() {
@@ -184,19 +200,8 @@ void test_create_append() {
 
 void test_sparse_array() {
     uint64_t n = 16 + rand() % 64;
-    float oneFreq = (float)(rand()) / (float)RAND_MAX;
-    compact::vector<uint64_t, 1> b = generate_random_bit_vector(n, oneFreq);
-
-    sparse_array<string> sa{};
-    sa.create(n);
-
-    uint64_t count = 0;
-    for (uint64_t i = 0; i < b.size(); i++) {
-        if (b.at(i) == 1) {
-            count++;
-            sa.append(std::to_string(count), i);
-        }
-    }
+    float sparsity = (float)(rand()) / (float)RAND_MAX;
+    sparse_array<string> sa = generate_random_sparse_array(n, sparsity);
 
     cout << sa.to_string() << endl << endl;
     uint64_t saSize = sa.size();
@@ -229,6 +234,25 @@ void test_sparse_array() {
     cout << endl << endl;
 }
 
+void test_save_load_sparse_array() {
+    uint64_t n = 16 + rand() % 64;
+    float sparsity = (float)(rand()) / (float)RAND_MAX;
+    sparse_array<string> sa = generate_random_sparse_array(n, sparsity);
+    cout << sa.to_string() << endl;
+    string fname = "test.txt";
+    sa.save(fname);
+
+    sa.load(fname);
+    cout << sa.to_string() << endl;
+    
+    n = 16 + rand() % 64;
+    sparsity = (float)(rand()) / (float)RAND_MAX;
+    sparse_array<string> sa2 = generate_random_sparse_array(n, sparsity);
+    cout << sa2.to_string() << endl;
+    sa2.load(fname);
+    cout << sa2.to_string() << endl;
+}
+
 int generate_random_01(float oneFreq) {
     float r = (float)(rand()) / (float)RAND_MAX;
     if (r > oneFreq) {
@@ -246,3 +270,19 @@ compact::vector<uint64_t, 1> generate_random_bit_vector(uint64_t size, float one
     return b;
 }
 
+sparse_array<string> generate_random_sparse_array(uint64_t size, float sparsity) {
+    compact::vector<uint64_t, 1> b = generate_random_bit_vector(size, 1 - sparsity);
+
+    sparse_array<string> sa{};
+    sa.create(size);
+
+    uint64_t count = 0;
+    for (uint64_t i = 0; i < b.size(); i++) {
+        if (b.at(i) == 1) {
+            count++;
+            sa.append(std::to_string(count), i);
+        }
+    }
+
+    return sa;
+}

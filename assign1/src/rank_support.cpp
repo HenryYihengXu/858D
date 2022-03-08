@@ -12,6 +12,8 @@ using std::string;
 using std::cout;
 using std::endl;
 
+rank_support::rank_support() {}
+
 rank_support::rank_support(compact::vector<uint64_t, 1> *b) 
 { 
     n = b->size();
@@ -25,6 +27,7 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
     RsSize = ceil((float)n / (float)RsCovers);
     RbBits = ceil(log2(RsCovers + 1));
     RsBits = ceil(log2(n + 1));
+    needFreeB = false;
 
     this->b = b;
     this->Rs = new compact::vector<uint64_t>(RsBits, RsSize);
@@ -49,13 +52,13 @@ rank_support::rank_support(compact::vector<uint64_t, 1> *b)
 
 rank_support::~rank_support() {
     if (b != NULL && needFreeB) {
-        delete(b);
+        delete b;
     }
     if (Rs != NULL) {
-        delete(Rs);
+        delete Rs;
     }
     if (Rb != NULL) {
-        delete(Rb);
+        delete Rb;
     }
 }
 
@@ -93,20 +96,16 @@ void rank_support::load(string& fname) {
 }
 
 void rank_support::load(std::ifstream& seqIn) {
-    if (b != NULL && needFreeB) {
-        delete(b);
+    if (b == NULL) {
+        b = new compact::vector<uint64_t, 1>(1);
+        needFreeB = true;
     }
-    if (Rs != NULL) {
-        delete(Rs);
+    if (Rs == NULL) {
+        Rs = new compact::vector<uint64_t>(1,1);
     }
-    if (Rb != NULL) {
-        delete(Rb);
+    if (Rb == NULL) {
+        Rb = new compact::vector<uint64_t>(1,1);
     }
-
-    b = new compact::vector<uint64_t, 1>{1};
-    needFreeB = true;
-    Rs = new compact::vector<uint64_t>{1};
-    Rb = new compact::vector<uint64_t>{1};
 
     b->deserialize(seqIn);
     Rs->deserialize(seqIn);
@@ -117,13 +116,13 @@ void rank_support::load(std::ifstream& seqIn) {
         cout << "WARNING: bit vector is empty or has only 1 element (so logn would be 0). Creating an empty rank_support" << endl;
         
         if (b != NULL) {
-            delete(b);
+            delete b;
         }
         if (Rs != NULL) {
-            delete(Rs);
+            delete Rs;
         }
         if (Rb != NULL) {
-            delete(Rb);
+            delete Rb;
         }
 
         RbCovers = 0;

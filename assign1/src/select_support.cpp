@@ -21,11 +21,7 @@ select_support::select_support(rank_support *r) {
     this->r = r;
 }
 
-select_support::~select_support() {
-    // if (r != NULL) {
-    //     delete(r);
-    // }
-}
+select_support::~select_support() { }
 
 uint64_t select_support::select1(uint64_t i) {
     return select1(i, 0, this->r->getN() - 1);
