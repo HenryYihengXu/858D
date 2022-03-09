@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
 
     // evaluate_rank_support(fname);
     // evaluate_select_support(fname);
-    evaluate_sparse_array(fname);
+    evaluate_sparse_array(fname); 
 }
 
 void evaluate_rank_support(string& fname) {
@@ -94,7 +94,7 @@ void evaluate_sparse_array(string& fname) {
     ofile << std::fixed;
     ofile << "sparsity,length,time_create_append,time_get_at_rank,time_get_at_index,time_num_elem_at,space,saving" << endl;
     
-    float sparsities[4] = {0.01, 0.05, 0.1, 0.2};
+    float sparsities[5] = {0.01, 0.05, 0.1, 0.2, 0.3};
     // float sparsities[1] = {0.01};
 
     for (float sparsity : sparsities) {
