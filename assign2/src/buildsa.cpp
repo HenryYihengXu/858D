@@ -9,7 +9,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-int main(){
+int main() {
     const string& path = "/Users/henryxu/Desktop/Sp2022/858D/858D-assignments/assign2/CMSC858D_S22_Project2_sample/ecoli.fa";
     std::ifstream input_file(path);
     if (!input_file.is_open()) {
@@ -26,7 +26,7 @@ int main(){
     // suffix_array sa(text, 3);
     cout << sa.to_string(true) << endl;
 
-    std::vector<uint64_t> result = sa.simpAccelQuery("TAC");
+    std::vector<uint64_t> result = sa.simpAccelQuery("TACGTACG");
     for (uint16_t i : result) {
         cout << i << "  ";
     }

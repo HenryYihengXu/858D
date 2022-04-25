@@ -66,6 +66,14 @@ suffix_array::suffix_array(string str, uint64_t k)
     }
 }
 
+std::vector<uint64_t> suffix_array::query(string pattern, string mode) {
+    if (mode.compare("simpaccel") == 0) {
+        return simpAccelQuery(pattern);
+    } else {
+        return naiveQuery(pattern);
+    }
+}
+
 std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
     std::vector<uint64_t> result;
     uint64_t left = 0;
@@ -218,6 +226,10 @@ uint64_t suffix_array::simpAccelFindRightBound(string pattern, uint64_t left, ui
     } else {
         return simpAccelFindRightBound(pattern, center, right, lcpCenter + result.at(1), lcpRight);
     }
+}
+
+string suffix_array::getText(uint64_t start, uint64_t len) {
+    return text.substr(start, len);
 }
 
 string suffix_array::to_string(bool printPrefTable) {

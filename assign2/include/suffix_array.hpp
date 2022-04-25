@@ -26,8 +26,10 @@ public:
     suffix_array(string text);
     suffix_array(string text, uint64_t k);
     
+    std::vector<uint64_t> query(string pattern, string mode);
     std::vector<uint64_t> naiveQuery(string pattern);
     std::vector<uint64_t> simpAccelQuery(string pattern);
+    string getText(uint64_t start, uint64_t len);
 
     string to_string(bool printPrefTable=true);
 };
