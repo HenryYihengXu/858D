@@ -1,6 +1,6 @@
 all:
 	mkdir -p bin
-	g++ -O3 src/buildsa.cpp src/suffix_array.cpp -o bin/test -std=c++20 -I/usr/local/include -L/usr/local/lib -lsdsl -ldivsufsort -ldivsufsort64
+	g++ -O3 src/buildsa.cpp src/suffix_array.cpp src/util.cpp -o bin/test -std=c++20 -I/usr/local/include -L/usr/local/lib -lsdsl -ldivsufsort -ldivsufsort64
 
 debug:
 	mkdir -p bin

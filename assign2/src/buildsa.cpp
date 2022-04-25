@@ -26,7 +26,7 @@ int main(){
     // suffix_array sa(text, 3);
     cout << sa.to_string(true) << endl;
 
-    std::vector<uint64_t> result = sa.naiveQuery("ACGG");
+    std::vector<uint64_t> result = sa.simpAccelQuery("TAC");
     for (uint16_t i : result) {
         cout << i << "  ";
     }

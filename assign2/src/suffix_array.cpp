@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "../include/suffix_array.hpp"
+#include "../include/util.hpp"
 
 using namespace sdsl;
 using std::string;
@@ -69,6 +70,7 @@ std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
     std::vector<uint64_t> result;
     uint64_t left = 0;
     uint64_t right = n - 1;
+
     if (k != 0) {
         string prefix = pattern.substr(0, k);
         if (prefTable.find(prefix) == prefTable.end()) {
@@ -80,6 +82,7 @@ std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
         right = interval.at(1);
         // cout << left << " " << right << endl;
     }
+
     uint64_t leftBound = naiveFindLeftBound(pattern, left, right);
     if (leftBound == -1) {
         result.push_back(0);
@@ -94,19 +97,20 @@ std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
 }
 
 uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_t right) {
-    cout << left << " " << right << endl;
+    // cout << left << " " << right << endl;
     if (right - left == 1) {
-        if (pattern.compare(text.substr(sa[left], pattern.length())) == 0) {
+        if (text.compare(sa[left], pattern.length(), pattern) == 0) {
             return left;
-        } else if (pattern.compare(text.substr(sa[right], pattern.length())) == 0) {
+        } else if (text.compare(sa[right], pattern.length(), pattern) == 0) {
             return right;
         } else {
             return -1;
         }
     }
+    
     uint64_t center = left + (right - left) / 2;
-    string suffix = text.substr(sa[center], pattern.length());
-    if (pattern.compare(suffix) <= 0) {
+
+    if (text.compare(sa[center], pattern.length(), pattern) >= 0) {
         return naiveFindLeftBound(pattern, left, center);
     } else {
         return naiveFindLeftBound(pattern, center, right);
@@ -115,20 +119,104 @@ uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_
 
 uint64_t suffix_array::naiveFindRightBound(string pattern, uint64_t left, uint64_t right) {
     if (right - left == 1) {
-        if (pattern.compare(text.substr(sa[right], pattern.length())) == 0) {
+        if (text.compare(sa[right], pattern.length(), pattern) == 0) {
             return right;
-        } else if (pattern.compare(text.substr(sa[left], pattern.length())) == 0) {
+        } else if (text.compare(sa[left], pattern.length(), pattern) == 0) {
             return left;
         } else {
             return -1;
         }
     }
     uint64_t center = left + (right - left) / 2;
-    string suffix = text.substr(sa[center], pattern.length());
-    if (pattern.compare(suffix) < 0) {
+    if (text.compare(sa[center], pattern.length(), pattern) > 0) {
         return naiveFindRightBound(pattern, left, center);
     } else {
         return naiveFindRightBound(pattern, center, right);
+    }
+}
+
+std::vector<uint64_t> suffix_array::simpAccelQuery(string pattern) {
+    std::vector<uint64_t> result;
+    uint64_t left = 0;
+    uint64_t right = n - 1;
+    
+    if (k != 0) {
+        string prefix = pattern.substr(0, k);
+        if (prefTable.find(prefix) == prefTable.end()) {
+            result.push_back(0);
+            return result;
+        }
+        std::vector<uint64_t> interval = prefTable.at(prefix);
+        left = interval.at(0);
+        right = interval.at(1);
+        // cout << left << " " << right << endl;
+    }
+
+    uint64_t lcpLeft = lcp(text, pattern, sa[left], 0);
+    uint64_t lcpRight = lcp(text, pattern, sa[right], 0);
+
+    uint64_t leftBound = simpAccelFindLeftBound(pattern, left, right, lcpLeft, lcpRight);
+    if (leftBound == -1) {
+        result.push_back(0);
+        return result;
+    }
+    uint64_t rightBound = simpAccelFindRightBound(pattern, left, right, lcpLeft, lcpRight);
+    result.push_back(rightBound - leftBound + 1);
+    for (uint64_t i = leftBound; i <= rightBound; i++) {
+        result.push_back(sa[i]);
+    }
+    return result;
+}
+
+uint64_t suffix_array::simpAccelFindLeftBound(string pattern, uint64_t left, uint64_t right, int64_t lcpLeft, int64_t lcpRight) {
+    // cout << left << " " << right << " " << lcpLeft << " " << lcpRight << endl;
+    if (right - left == 1) {
+        if (stringWithLcpComparison(text, pattern, sa[left] + lcpLeft, lcpLeft, pattern.length() - lcpLeft, pattern.length() - lcpLeft).at(0) == 0) {
+            return left;
+        } else if (stringWithLcpComparison(text, pattern, sa[right] + lcpRight, lcpRight, pattern.length() - lcpRight, pattern.length() - lcpRight).at(0) == 0) {
+            return right;
+        } else {
+            return -1;
+        }
+    }
+    
+    uint64_t center = left + (right - left) / 2;
+
+    int64_t lcpCenter = std::min(lcpLeft, lcpRight);
+    std::vector<int64_t> result = stringWithLcpComparison(text, pattern, sa[center] + lcpCenter, lcpCenter, pattern.length() - lcpCenter, pattern.length() - lcpCenter);
+    // cout << "result = " << result << endl;
+
+    if (result.at(0) == 0) {
+        return simpAccelFindLeftBound(pattern, left, center, lcpLeft, lcpCenter + result.at(1));
+    } else if (result.at(0) > 0) {
+        return simpAccelFindLeftBound(pattern, left, center, lcpLeft, lcpCenter + result.at(1));
+    } else {
+        return simpAccelFindLeftBound(pattern, center, right, lcpCenter + result.at(1), lcpRight);
+    }
+}
+
+uint64_t suffix_array::simpAccelFindRightBound(string pattern, uint64_t left, uint64_t right, int64_t lcpLeft, int64_t lcpRight) {
+    if (right - left == 1) {
+        if (stringWithLcpComparison(text, pattern, sa[right] + lcpRight, lcpRight, pattern.length() - lcpRight, pattern.length() - lcpRight).at(0) == 0) {
+            return right;
+        } else if (stringWithLcpComparison(text, pattern, sa[left] + lcpLeft, lcpLeft, pattern.length() - lcpLeft, pattern.length() - lcpLeft).at(0) == 0) {
+            return left;
+        } else {
+            return -1;
+        }
+    }
+    
+    uint64_t center = left + (right - left) / 2;
+
+    int64_t lcpCenter = std::min(lcpLeft, lcpRight);
+    std::vector<int64_t> result = stringWithLcpComparison(text, pattern, sa[center] + lcpCenter, lcpCenter, pattern.length() - lcpCenter, pattern.length() - lcpCenter);
+
+    if (result.at(0) == 0) {
+        return simpAccelFindRightBound(pattern, center, right, lcpCenter + result.at(1), lcpRight);
+    } else if (result.at(0) > 0) {
+        return simpAccelFindRightBound(pattern, left, center, lcpLeft, lcpCenter + result.at(1));
+    } else {
+        return simpAccelFindRightBound(pattern, center, right, lcpCenter + result.at(1), lcpRight);
     }
 }
 
@@ -151,7 +239,7 @@ string suffix_array::to_string(bool printPrefTable) {
     result << endl;
 
     if (printPrefTable & (k != 0)) {
-        result << "Prefix Table (k =" << k << "): " << endl;
+        result << "Prefix Table (k = " << k << "): " << endl;
         std::vector<string> keys;
         keys.reserve(prefTable.size());
         for (auto& it : prefTable) {

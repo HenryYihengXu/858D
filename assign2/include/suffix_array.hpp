@@ -17,8 +17,8 @@ class suffix_array {
 
     uint64_t naiveFindLeftBound(string pattern, uint64_t left, uint64_t right);
     uint64_t naiveFindRightBound(string pattern, uint64_t left, uint64_t right);
-    uint64_t simpAccelFindLeftBound(string pattern, uint64_t left, uint64_t right);
-    uint64_t simpAccelFindRightBound(string pattern, uint64_t left, uint64_t right);
+    uint64_t simpAccelFindLeftBound(string pattern, uint64_t left, uint64_t right, int64_t lcpLeft, int64_t lcpRight);
+    uint64_t simpAccelFindRightBound(string pattern, uint64_t left, uint64_t right, int64_t lcpLeft, int64_t lcpRight);
 
 public:
     suffix_array();
