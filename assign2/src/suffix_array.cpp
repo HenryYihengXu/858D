@@ -65,6 +65,73 @@ suffix_array::suffix_array(string str, uint64_t k)
     }
 }
 
+std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
+    std::vector<uint64_t> result;
+    uint64_t left = 0;
+    uint64_t right = n - 1;
+    if (k != 0) {
+        string prefix = pattern.substr(0, k);
+        if (prefTable.find(prefix) == prefTable.end()) {
+            result.push_back(0);
+            return result;
+        }
+        std::vector<uint64_t> interval = prefTable.at(prefix);
+        left = interval.at(0);
+        right = interval.at(1);
+        // cout << left << " " << right << endl;
+    }
+    uint64_t leftBound = naiveFindLeftBound(pattern, left, right);
+    if (leftBound == -1) {
+        result.push_back(0);
+        return result;
+    }
+    uint64_t rightBound = naiveFindRightBound(pattern, left, right);
+    result.push_back(rightBound - leftBound + 1);
+    for (uint64_t i = leftBound; i <= rightBound; i++) {
+        result.push_back(sa[i]);
+    }
+    return result;
+}
+
+uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_t right) {
+    cout << left << " " << right << endl;
+    if (right - left == 1) {
+        if (pattern.compare(text.substr(sa[left], pattern.length())) == 0) {
+            return left;
+        } else if (pattern.compare(text.substr(sa[right], pattern.length())) == 0) {
+            return right;
+        } else {
+            return -1;
+        }
+    }
+    uint64_t center = left + (right - left) / 2;
+    string suffix = text.substr(sa[center], pattern.length());
+    if (pattern.compare(suffix) <= 0) {
+        return naiveFindLeftBound(pattern, left, center);
+    } else {
+        return naiveFindLeftBound(pattern, center, right);
+    }
+}
+
+uint64_t suffix_array::naiveFindRightBound(string pattern, uint64_t left, uint64_t right) {
+    if (right - left == 1) {
+        if (pattern.compare(text.substr(sa[right], pattern.length())) == 0) {
+            return right;
+        } else if (pattern.compare(text.substr(sa[left], pattern.length())) == 0) {
+            return left;
+        } else {
+            return -1;
+        }
+    }
+    uint64_t center = left + (right - left) / 2;
+    string suffix = text.substr(sa[center], pattern.length());
+    if (pattern.compare(suffix) < 0) {
+        return naiveFindRightBound(pattern, left, center);
+    } else {
+        return naiveFindRightBound(pattern, center, right);
+    }
+}
+
 string suffix_array::to_string(bool printPrefTable) {
     std::stringstream result;
     result << endl;
@@ -84,7 +151,7 @@ string suffix_array::to_string(bool printPrefTable) {
     result << endl;
 
     if (printPrefTable & (k != 0)) {
-        result << "Prefix Table: " << endl;
+        result << "Prefix Table (k =" << k << "): " << endl;
         std::vector<string> keys;
         keys.reserve(prefTable.size());
         for (auto& it : prefTable) {

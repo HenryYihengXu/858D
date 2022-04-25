@@ -22,8 +22,13 @@ int main(){
     string text = string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
     text = "ACTACGTACGTACG";
     text = text + "$";
-    suffix_array sa(text, 3);
+    suffix_array sa(text);
+    // suffix_array sa(text, 3);
     cout << sa.to_string(true) << endl;
+
+    std::vector<uint64_t> result = sa.naiveQuery("ACGG");
+    for (uint16_t i : result) {
+        cout << i << "  ";
+    }
+    cout << endl;
 }
-
-
