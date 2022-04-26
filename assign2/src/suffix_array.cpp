@@ -3,8 +3,6 @@
 #include <string>
 #include <math.h>
 
-
-
 #include "../include/suffix_array.hpp"
 #include "../include/util.hpp"
 
@@ -112,6 +110,14 @@ std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
 
 uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_t right) {
     // cout << left << " " << right << endl;
+    if (left == right) {
+        if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+            return left;
+        } else {
+            return -1;
+        }
+    }
+    
     if (right - left == 1) {
         if (text.compare(sa[left], pattern.length(), pattern) == 0) {
             return left;
@@ -132,6 +138,14 @@ uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_
 }
 
 uint64_t suffix_array::naiveFindRightBound(string pattern, uint64_t left, uint64_t right) {
+    if (left == right) {
+        if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+            return left;
+        } else {
+            return -1;
+        }
+    }
+    
     if (right - left == 1) {
         if (text.compare(sa[right], pattern.length(), pattern) == 0) {
             return right;
@@ -183,7 +197,14 @@ std::vector<uint64_t> suffix_array::simpAccelQuery(string pattern) {
 }
 
 uint64_t suffix_array::simpAccelFindLeftBound(string pattern, uint64_t left, uint64_t right, int64_t lcpLeft, int64_t lcpRight) {
-    // cout << left << " " << right << " " << lcpLeft << " " << lcpRight << endl;
+    // cout << left << " " << right << " " << lcpLeft << " " << lcpRight << endl; 
+    if (left == right) {
+        if (stringWithLcpComparison(text, pattern, sa[left] + lcpLeft, lcpLeft, pattern.length() - lcpLeft, pattern.length() - lcpLeft).at(0) == 0) {
+            return left;
+        } else {
+            return -1;
+        }
+    }
     if (right - left == 1) {
         if (stringWithLcpComparison(text, pattern, sa[left] + lcpLeft, lcpLeft, pattern.length() - lcpLeft, pattern.length() - lcpLeft).at(0) == 0) {
             return left;
@@ -210,6 +231,14 @@ uint64_t suffix_array::simpAccelFindLeftBound(string pattern, uint64_t left, uin
 }
 
 uint64_t suffix_array::simpAccelFindRightBound(string pattern, uint64_t left, uint64_t right, int64_t lcpLeft, int64_t lcpRight) {
+    if (left == right) {
+        if (stringWithLcpComparison(text, pattern, sa[left] + lcpLeft, lcpLeft, pattern.length() - lcpLeft, pattern.length() - lcpLeft).at(0) == 0) {
+            return left;
+        } else {
+            return -1;
+        }
+    }
+    
     if (right - left == 1) {
         if (stringWithLcpComparison(text, pattern, sa[right] + lcpRight, lcpRight, pattern.length() - lcpRight, pattern.length() - lcpRight).at(0) == 0) {
             return right;
@@ -244,6 +273,7 @@ void suffix_array::save(string path) {
     // archive( sa );
     sa.serialize(os);
     if (k != 0) {
+        cout << endl << endl << k << endl << endl;
         archive( prefTable );
     }
 }
@@ -266,7 +296,27 @@ string suffix_array::getText(uint64_t start, uint64_t len) {
     return text.substr(start, len);
 }
 
-string suffix_array::to_string(bool printPrefTable) {
+string suffix_array::printPrefTable() {
+    std::stringstream result;
+    if (k == 0) {
+        return "";
+    }
+    result << "Prefix Table (k = " << k << "): " << endl;
+    std::vector<string> keys;
+    keys.reserve(prefTable.size());
+    for (auto& it : prefTable) {
+        keys.push_back(it.first);
+    }
+    std::sort (keys.begin(), keys.end());
+    for(string it : keys) {
+        std::vector<uint64_t> interval = prefTable[it];
+        result << it << ": [" << interval[0] << ", " << interval[1] << "]" << endl;
+    }
+    result << endl;
+    return result.str();
+}
+
+string suffix_array::to_string(bool prefTable) {
     std::stringstream result;
     result << endl;
     result << "Text: " << endl;
@@ -284,19 +334,8 @@ string suffix_array::to_string(bool printPrefTable) {
     }
     result << endl;
 
-    if (printPrefTable & (k != 0)) {
-        result << "Prefix Table (k = " << k << "): " << endl;
-        std::vector<string> keys;
-        keys.reserve(prefTable.size());
-        for (auto& it : prefTable) {
-            keys.push_back(it.first);
-        }
-        std::sort (keys.begin(), keys.end());
-        for(string it : keys) {
-            std::vector<uint64_t> interval = prefTable[it];
-            result << it << ": [" << interval[0] << ", " << interval[1] << "]" << endl;
-        }
-        result << endl;
+    if (prefTable & (k != 0)) {
+        result << printPrefTable();
     }
 
     return result.str();;

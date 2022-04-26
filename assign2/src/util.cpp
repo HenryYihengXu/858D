@@ -90,9 +90,15 @@ std::vector<string> readQueries(string path) {
     }
     string line;
     while(getline(queryFile, line)){ 
+        if (line.empty()) {
+            continue;
+        }
         string name = line.substr(1);
         queries.push_back(name);
         getline(queryFile, line);
+        if (line.empty()) {
+            continue;
+        }
         queries.push_back(line);
     }
     queryFile.close();
@@ -140,3 +146,26 @@ std::vector<int64_t> stringWithLcpComparison(string& s1, string& s2, uint64_t s1
     result.push_back(lcp);
     return result;
 }
+
+int stringComparison(string& s1, string& s2, uint64_t s1Start, uint64_t s2Start, uint64_t s1Len, uint64_t s2Len) {
+    int64_t lcp = 0;
+    while (s1Start < s1.length() && s2Start < s2.length() && lcp < s1Len && lcp < s2Len) {
+        if (s1.at(s1Start) < s2.at(s2Start)) {
+            return -1;
+        } else if (s1.at(s1Start) > s2.at(s2Start)) {
+            return 1;
+        } else {
+            lcp += 1;
+            s1Start += 1;
+            s2Start += 1;
+        }
+    }
+    if (s1Len < s2Len) {
+        return -1;
+    } else if (s1Len > s2Len) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+

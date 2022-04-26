@@ -37,6 +37,7 @@ public:
     void load(string path);
     string getText(uint64_t start, uint64_t len);
 
+    string printPrefTable();
     string to_string(bool printPrefTable=true);
 };
 
