@@ -3,32 +3,32 @@
 #include <string>
 
 #include "../include/suffix_array.hpp"
+#include "../include/util.hpp"
 
 using std::string;
 using std::cout;
 using std::cerr;
 using std::endl;
 
-int main() {
-    const string& path = "/Users/henryxu/Desktop/Sp2022/858D/858D-assignments/assign2/CMSC858D_S22_Project2_sample/ecoli.fa";
-    std::ifstream input_file(path);
-    if (!input_file.is_open()) {
-        cerr << "Could not open the file - '"
-             << path << "'" << endl;
-        exit(EXIT_FAILURE);
+int main(int argc, char** argv) {
+    string referencePath;
+    string outputPath;
+    uint64_t k = 0;
+    if (argc == 3) {
+        referencePath = argv[1];
+        outputPath = argv[2];
+    } else if (argc == 5) {
+        k = std::stoi(argv[2]);
+        referencePath = argv[3];
+        outputPath = argv[4];
+    } else {
+        cout << "Input format doesn't match. Format: buildsa [--preftab k] reference output" << endl;
     }
-    string tp;
-    getline(input_file, tp);
-    string text = string((std::istreambuf_iterator<char>(input_file)), std::istreambuf_iterator<char>());
-    text = "ACTACGTACGTACG";
-    text = text + "$";
-    suffix_array sa(text);
-    // suffix_array sa(text, 3);
-    cout << sa.to_string(true) << endl;
 
-    std::vector<uint64_t> result = sa.simpAccelQuery("TACGTACG");
-    for (uint16_t i : result) {
-        cout << i << "  ";
-    }
-    cout << endl;
+    string reference = readReference(referencePath);
+    suffix_array sa(reference, k);
+
+    sa.save(outputPath);
+
+    suffix_array saLoaded;
 }

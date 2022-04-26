@@ -15,15 +15,13 @@ int main(int argc, char** argv) {
         cout << "Input format doesn't match. Format: querysa index queries query_mode output" << endl;
     }
 
-    const string& path = "/Users/henryxu/Desktop/Sp2022/858D/858D-assignments/assign2/CMSC858D_S22_Project2_sample/ecoli.fa";
-    string reference = readReference(path);
-
-    suffix_array sa(reference, 5);
+    string binaryPath = argv[1];
+    suffix_array sa;
+    sa.load(binaryPath);
 
     string queryFilePath = argv[2];
     string queryMode = argv[3];
     std::vector<string> queries = readQueries(queryFilePath);
-
 
     std::unordered_map<string, std::vector<uint64_t>> results;
     for (uint64_t i = 0; i < queries.size(); i += 2) {
@@ -41,30 +39,31 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    // // Just to compare with query_res.txt, which is sorted by name string
-    // std::vector<string> keys;
-    // keys.reserve(results.size());
-    // for (auto& it : results) {
-    //     keys.push_back(it.first);
-    // }
-    // std::sort (keys.begin(), keys.end());
-    // for(string key : keys) {
-    //     std::vector<uint64_t> result = results[key];
-    //     outputFile << key << "\t";
+    // Just to compare with query_res.txt, which is sorted by name string
+    std::vector<string> keys;
+    keys.reserve(results.size());
+    for (auto& it : results) {
+        keys.push_back(it.first);
+    }
+    std::sort (keys.begin(), keys.end());
+    for(string key : keys) {
+        std::vector<uint64_t> result = results[key];
+        outputFile << key << "\t";
+        for (uint64_t i : result) {
+            outputFile << i << "\t"; 
+        }
+        outputFile << endl;
+    }
+
+    // for (uint64_t i = 0; i < queries.size(); i += 2) {
+    //     string name = queries.at(i);
+    //     std::vector<uint64_t> result = results[name];
+    //     outputFile << name << "\t";
     //     for (uint64_t i : result) {
     //         outputFile << i << "\t"; 
     //     }
     //     outputFile << endl;
     // }
 
-    for (uint64_t i = 0; i < queries.size(); i += 2) {
-        string name = queries.at(i);
-        std::vector<uint64_t> result = results[name];
-        outputFile << name << "\t";
-        for (uint64_t i : result) {
-            outputFile << i << "\t"; 
-        }
-        outputFile << endl;
-    }
     outputFile.close(); 
 }

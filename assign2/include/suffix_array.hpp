@@ -4,6 +4,10 @@
 #include <sdsl/suffix_arrays.hpp>
 #include <vector>
 #include <string>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/archives/binary.hpp>
 
 using namespace sdsl;
 using std::string;
@@ -29,6 +33,8 @@ public:
     std::vector<uint64_t> query(string pattern, string mode);
     std::vector<uint64_t> naiveQuery(string pattern);
     std::vector<uint64_t> simpAccelQuery(string pattern);
+    void save(string path);
+    void load(string path);
     string getText(uint64_t start, uint64_t len);
 
     string to_string(bool printPrefTable=true);

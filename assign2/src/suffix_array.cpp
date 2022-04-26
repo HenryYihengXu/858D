@@ -3,6 +3,8 @@
 #include <string>
 #include <math.h>
 
+
+
 #include "../include/suffix_array.hpp"
 #include "../include/util.hpp"
 
@@ -26,6 +28,10 @@ suffix_array::suffix_array(string str, uint64_t k)
 {
     algorithm::calculate_sa(reinterpret_cast<const unsigned char*>(text.c_str()), text.length(), sa);
     
+    if (k == 0) {
+        return;
+    }
+
     string prevPrefix = "";
     int startPos = 0;
     for (uint64_t i = 0; i < n; i++) {
@@ -225,6 +231,34 @@ uint64_t suffix_array::simpAccelFindRightBound(string pattern, uint64_t left, ui
         return simpAccelFindRightBound(pattern, left, center, lcpLeft, lcpCenter + result.at(1));
     } else {
         return simpAccelFindRightBound(pattern, center, right, lcpCenter + result.at(1), lcpRight);
+    }
+}
+
+void suffix_array::save(string path) {
+    std::ofstream os(path, std::ios::binary);
+    cereal::BinaryOutputArchive archive( os );
+
+    archive( n );
+    archive( k );
+    archive( text );
+    // archive( sa );
+    sa.serialize(os);
+    if (k != 0) {
+        archive( prefTable );
+    }
+}
+
+void suffix_array::load(string path) {
+    std::ifstream is(path, std::ios::binary);
+    cereal::BinaryInputArchive archive( is );
+
+    archive( n );
+    archive( k );
+    archive( text );
+    // archive( sa );
+    sa.load(is);
+    if (k != 0) {
+        archive( prefTable );
     }
 }
 
