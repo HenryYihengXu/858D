@@ -111,7 +111,8 @@ std::vector<uint64_t> suffix_array::naiveQuery(string pattern) {
 uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_t right) {
     // cout << left << " " << right << endl;
     if (left == right) {
-        if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        // if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        if (stringComparison(text, pattern, sa[left], 0, pattern.length(), pattern.length()) == 0) {
             return left;
         } else {
             return -1;
@@ -119,9 +120,11 @@ uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_
     }
     
     if (right - left == 1) {
-        if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        // if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        if (stringComparison(text, pattern, sa[left], 0, pattern.length(), pattern.length()) == 0) {
             return left;
-        } else if (text.compare(sa[right], pattern.length(), pattern) == 0) {
+        // } else if (text.compare(sa[right], pattern.length(), pattern) == 0) {
+        } else if (stringComparison(text, pattern, sa[right], 0, pattern.length(), pattern.length()) == 0) {
             return right;
         } else {
             return -1;
@@ -139,7 +142,8 @@ uint64_t suffix_array::naiveFindLeftBound(string pattern, uint64_t left, uint64_
 
 uint64_t suffix_array::naiveFindRightBound(string pattern, uint64_t left, uint64_t right) {
     if (left == right) {
-        if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        // if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        if (stringComparison(text, pattern, sa[left], 0, pattern.length(), pattern.length()) == 0) {
             return left;
         } else {
             return -1;
@@ -147,9 +151,11 @@ uint64_t suffix_array::naiveFindRightBound(string pattern, uint64_t left, uint64
     }
     
     if (right - left == 1) {
-        if (text.compare(sa[right], pattern.length(), pattern) == 0) {
+        // if (text.compare(sa[right], pattern.length(), pattern) == 0) {
+        if (stringComparison(text, pattern, sa[right], 0, pattern.length(), pattern.length()) == 0) {
             return right;
-        } else if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        // } else if (text.compare(sa[left], pattern.length(), pattern) == 0) {
+        } else if (stringComparison(text, pattern, sa[left], 0, pattern.length(), pattern.length()) == 0) {
             return left;
         } else {
             return -1;
