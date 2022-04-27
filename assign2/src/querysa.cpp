@@ -39,31 +39,31 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    // Just to compare with query_res.txt, which is sorted by name string
-    std::vector<string> keys;
-    keys.reserve(results.size());
-    for (auto& it : results) {
-        keys.push_back(it.first);
-    }
-    std::sort (keys.begin(), keys.end());
-    for(string key : keys) {
-        std::vector<uint64_t> result = results[key];
-        outputFile << key << "\t";
-        for (uint64_t i : result) {
-            outputFile << i << "\t"; 
-        }
-        outputFile << endl;
-    }
-
-    // for (uint64_t i = 0; i < queries.size(); i += 2) {
-    //     string name = queries.at(i);
-    //     std::vector<uint64_t> result = results[name];
-    //     outputFile << name << "\t";
+    // // Just to compare with query_res.txt, which is sorted by name string
+    // std::vector<string> keys;
+    // keys.reserve(results.size());
+    // for (auto& it : results) {
+    //     keys.push_back(it.first);
+    // }
+    // std::sort (keys.begin(), keys.end());
+    // for(string key : keys) {
+    //     std::vector<uint64_t> result = results[key];
+    //     outputFile << key << "\t";
     //     for (uint64_t i : result) {
     //         outputFile << i << "\t"; 
     //     }
     //     outputFile << endl;
     // }
+
+    for (uint64_t i = 0; i < queries.size(); i += 2) {
+        string name = queries.at(i);
+        std::vector<uint64_t> result = results[name];
+        outputFile << name << "\t";
+        for (uint64_t i : result) {
+            outputFile << i << "\t"; 
+        }
+        outputFile << endl;
+    }
 
     outputFile.close(); 
 }
